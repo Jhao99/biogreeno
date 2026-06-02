@@ -1,0 +1,1858 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>BioGreeno — 黄金蚬® 马来西亚授权代理 | Premium Golden Clam® Malaysia</title>
+<meta name="description" content="BioGreeno — 台湾花莲立川渔场黄金蚬®马来西亚授权代理。源自1989年，护肝养生之选。"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<script crossorigin src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js"></script>
+<script crossorigin src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.21.5/babel.min.js"></script>
+<style>
+  html,body{margin:0;padding:0;}
+  body{font-family:'Noto Sans SC',system-ui,sans-serif;background:#F5F1E8;color:#1F2519;}
+  .font-serif-display{font-family:'Noto Serif SC',serif;font-weight:500;}
+  .font-serif-display em{font-style:normal;font-weight:700;}
+  .smallcaps{font-variant:all-small-caps;letter-spacing:0.18em;}
+  body.lang-zh .smallcaps{font-variant:normal;letter-spacing:0.1em;}
+  .grain{background-image:radial-gradient(rgba(31,37,25,0.05) 1px,transparent 1px);background-size:3px 3px;}
+  @keyframes drift{0%,100%{transform:translate(0,0);}50%{transform:translate(8px,-10px);}}
+  @keyframes pulseRing{0%{box-shadow:0 0 0 0 rgba(106,128,86,0.45);}70%{box-shadow:0 0 0 14px rgba(106,128,86,0);}100%{box-shadow:0 0 0 0 rgba(106,128,86,0);}}
+  .pulse-ring{animation:pulseRing 2s infinite;}
+  .float-leaf{animation:drift 8s ease-in-out infinite;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+  .reveal{animation:fadeUp 0.9s ease-out both;}
+  .reveal-1{animation-delay:0.1s;}.reveal-2{animation-delay:0.25s;}
+  .reveal-3{animation-delay:0.4s;}.reveal-4{animation-delay:0.55s;}
+  .marquee{animation:marquee 40s linear infinite;}
+  @keyframes marquee{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+  #loading{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#F5F1E8;z-index:999;}
+  #loading .text{font-family:'Noto Serif SC',serif;font-size:28px;color:#6A8056;letter-spacing:0.05em;font-weight:500;}
+  .dropdown-menu{opacity:0;visibility:hidden;transition:all 0.2s;}
+  .dropdown:hover .dropdown-menu{opacity:1;visibility:visible;}
+</style>
+</head>
+<body>
+<div id="loading"><div class="text">biogreeno<span style="color:#6A8056">.</span></div></div>
+<div id="root"></div>
+<script type="text/babel">
+const {useState,useEffect,useRef} = React;
+
+// ─────────────────────────────────────────────
+// TRANSLATIONS
+// ─────────────────────────────────────────────
+const T = {
+  // Shared nav
+  nav_products:   {en:'Products',zh:'产品'},
+  nav_golden:     {en:'Golden Clam®',zh:'黄金蚬®'},
+  nav_spring:     {en:'SpringLife®',zh:'SpringLife®'},
+  nav_hualien:    {en:'Hualien Story',zh:'花莲的故事'},
+  nav_cert:       {en:'Certifications',zh:'认证'},
+  nav_testimony:  {en:'Testimonials',zh:'见证'},
+  nav_contact:    {en:'Contact',zh:'联系我们'},
+  announcement:   {en:'Authorised Malaysian distributor of Premium Golden Clam® · Hualien, Taiwan',zh:'马来西亚黄金蚬® 授权代理 · 来自台湾花莲'},
+
+  // ── HOME ──
+  hero_eyebrow:   {en:'The Treasure of Taiwan · Now in Malaysia',zh:'台湾国宝 · 来到马来西亚'},
+  hero_t1:        {en:'Natural',zh:'天然'},
+  hero_t2:        {en:'wellness,',zh:'养生,'},
+  hero_t3:        {en:'from within.',zh:'由内而外。'},
+  hero_body:      {en:"We bring Premium Golden Clam® — born of Hualien's mineral spring waters and refined by four decades of Taiwanese craftsmanship — to homes across Malaysia.",zh:'我们将黄金蚬®带到马来西亚 —— 源自花莲矿泉活水，经过四十年台湾工艺的精炼，呵护每一个家庭。'},
+  hero_cta1:      {en:'Shop Golden Clam',zh:'选购黄金蚬'},
+  hero_cta2:      {en:'The Hualien story',zh:'花莲的故事'},
+  hero_loc_lbl:   {en:'Pictured',zh:'实景图'},
+  hero_loc:       {en:'Hualien · Taiwan',zh:'台湾 · 花莲'},
+  hero_since:     {en:'est. by Lichuan',zh:'由立川渔场命名'},
+  hero_credit:    {en:'Lichuan Aquafarm, Hualien Shoufeng Township',zh:'立川渔场 · 花莲寿丰乡'},
+
+  diff_eyebrow:   {en:'A note before we begin',zh:'在我们开始之前'},
+  diff_t1:        {en:'Clam',zh:'蚬'},
+  diff_eq:        {en:'≠',zh:'≠'},
+  diff_t2:        {en:'Golden Clam.',zh:'黄金蚬。'},
+  diff_body:      {en:'The name "Golden Clam" was officially given by Lichuan Aquafarm in 1989 — the world\'s only farm to cultivate this species. It grows in Hualien\'s living spring waters, fed by bio-cultivated algae across 600 hectares. Outside this corner of Taiwan, the Golden Clam loses its potency. There is no equivalent.',zh:'"黄金蚬"之名由立川渔场于1989年正式命名 —— 世界唯一养殖此品种的渔场。生长于花莲600甲活水涌泉之间，以生物科技培育的有机藻为食。离开了花莲寿丰乡，就没有效性的黄金蚬。独一无二，绝无替代。'},
+  diff_cta:       {en:'Discover Golden Clam®',zh:'探索黄金蚬®'},
+
+  hualien_eyebrow:{en:'04 — The Hualien Story',zh:'04 — 花莲的故事'},
+  hualien_t1:     {en:"The world's only",zh:'世界唯一'},
+  hualien_t2:     {en:'Golden Clam farm.',zh:'黄金蚬养殖场。'},
+  hualien_p1:     {en:"In Hualien's Shoufeng Township, the East Rift Valley sits between two great mountain ranges. Pacific vapour rises, condenses against the Central Range — 3,952 metres tall — and falls as rain. That rain disappears underground, filtered through mineral-rich rock, and re-emerges as living spring water. And there — only there — the Golden Clam grows.",zh:'花莲寿丰乡，花东纵谷之间，两大山脉环抱。太平洋的水蒸气升腾，遇高耸的中央山脉（3,952公尺）凝聚成雨，雨水渗入地下，经富含矿物的岩层过滤，化为活水涌泉。唯有在此，黄金蚬得以孕育。'},
+  hualien_p2:     {en:'Lichuan Aquafarm has stewarded these waters since 1963, and officially named the species "Golden Clam" in 1989. Across 600 hectares, with patented bacterial-soil-water-clam cultivation cycles, they remain the world\'s only producer.',zh:'立川渔场自1963年守护这片水土，1989年正式命名「黄金蚬」。占地600甲，采用专利的菌-土-水-蚬循环养殖技术，至今仍是世界唯一的黄金蚬生产原厂。'},
+  hualien_p3:     {en:'BioGreeno is the authorised Malaysian distributor — bringing this golden treasure to the bodies that need it, with the lineage and the science intact.',zh:'BioGreeno 是其马来西亚授权代理 —— 将这枚金色珍宝带到需要它的人身边，传承不失，科学如实。'},
+  hualien_img_lbl:{en:'— Lichuan Aquafarm, Hualien —',zh:'— 立川渔场, 花莲 —'},
+  hualien_cta:    {en:'Learn More',zh:'了解更多'},
+  stat_y:         {en:'Lichuan since',zh:'立川集团'},
+  stat_h:         {en:'Hectares',zh:'甲地养殖'},
+  stat_s:         {en:'Hualien-sourced',zh:'花莲源产'},
+
+  feat_eyebrow:   {en:'05 — Nutritional Profile',zh:'05 — 营养精萃'},
+  feat_t1:        {en:'A small clam.',zh:'小小一枚蚬。'},
+  feat_t2:        {en:'Extraordinary inside.',zh:'蕴藏不凡。'},
+  feat_body:      {en:"Twenty amino acids, ten unique active compounds, twenty-six minerals and vitamins. Lichuan's farm produces a clam unlike any other.",zh:'20种胺基酸、10种独有活性成分、26种矿物质与维生素 —— 立川花莲渔场，孕育出世上独一无二的黄金蚬。'},
+  feat1_t:        {en:'20 amino acids',zh:'20种胺基酸'},
+  feat1_b:        {en:'A complete amino acid profile, including all 9 essentials. The FAO rates clam protein at the perfect score of 100.',zh:'完整的胺基酸图谱，含全部9种必需胺基酸。联合国FAO评定蚬蛋白价为满分100。'},
+  feat2_t:        {en:'10 active compounds',zh:'10种活性成分'},
+  feat2_b:        {en:'Plant sterols, choline, DHA, chlorophyll, folate, glycogen, glutathione, carotenoids, Omega-3, niacin — uniquely concentrated.',zh:'植物固醇、胆碱、DHA、叶绿素、叶酸、肝醣、谷胱甘肽、类胡萝卜素、Omega-3、菸碱素 —— 黄金蚬独有的活性精华。'},
+  feat3_t:        {en:'26 minerals & vitamins',zh:'26种矿物质与维生素'},
+  feat3_b:        {en:'Vitamins A, B-complex, C, E, plus 19 minerals and trace elements — the body\'s building blocks for daily metabolism.',zh:'维生素A、B群、C、E，加上19种矿物质与微量元素 —— 身体每日代谢与活力的根基。'},
+
+  test_eyebrow:   {en:'07 — In their words',zh:'07 — 他们的话'},
+  test_t1:        {en:'Trusted across',zh:'三代人的'},
+  test_t2:        {en:'three generations.',zh:'信任。'},
+  test_cta:       {en:'More Testimonials',zh:'更多见证'},
+  test1:          {en:'My father has taken Golden Clam for years. His liver markers have stayed steady through his seventies. We are quietly grateful.',zh:'父亲服用黄金蚬多年。已七十有余，他的肝指数依然稳定。我们心怀感激，不形于言。'},
+  test1_n:        {en:'Mei Ling C.',zh:'陈美玲'},
+  test1_c:        {en:'Petaling Jaya',zh:'八打灵再也'},
+  test2:          {en:'I was sceptical of supplements. Three months in, my fatigue lifted in a way coffee never managed. The honesty of this brand won me over.',zh:'我本对保健品存疑。三个月后，连咖啡都做不到的事 —— 我的疲倦消失了。这个品牌的诚实，打动了我。'},
+  test2_n:        {en:'Hafiz R.',zh:'Hafiz R.'},
+  test2_c:        {en:'Kuala Lumpur',zh:'吉隆坡'},
+  test3:          {en:'It feels less like a product and more like an inheritance. My grandmother trusted clam soup. I trust this. The lineage is the point.',zh:'这不像一件产品，更像一种传承。奶奶相信蚬汤，我相信这个。传承才是关键。'},
+  test3_n:        {en:'Sarah T.',zh:'Sarah T.'},
+  test3_c:        {en:'Penang',zh:'槟城'},
+
+  // New keys for testimonial labels
+  test_before:    {en:'Before :',zh:'服用前：'},
+  test_after:     {en:'After :',zh:'服用后：'},
+
+  nl_eyebrow:     {en:'Stay close',zh:'保持联系'},
+  nl_t:           {en:'Letters from',zh:'来自'},
+  nl_em:          {en:'the apothecary.',zh:'药斋的来信。'},
+  nl_body:        {en:'Seasonal wellness notes, Hualien dispatches, and quiet first looks at new work. No noise — we promise.',zh:'季节养生笔记、花莲来信、新作的悄悄预告。绝无打扰 —— 这是我们的承诺。'},
+  nl_ph:          {en:'your@email.com',zh:'您的电邮地址'},
+  nl_btn:         {en:'Subscribe',zh:'订阅'},
+
+  cert_1:{en:'Taiwan Health Food Cert (A00207)',zh:'台湾健康食品认证 (A00207)'},
+  cert_2:{en:'HACCP Food Safety',zh:'HACCP 食品安全'},
+  cert_3:{en:'ISO 9001:2000',zh:'ISO 9001:2000'},
+  cert_4:{en:'SGS Verified',zh:'SGS 检验合格'},
+  cert_5:{en:'HALAL Compliant',zh:'HALAL 清真认证'},
+
+  footer_tagline: {en:'Authorised Malaysian distributor of Premium Golden Clam® from Lichuan Aquafarm, Hualien, Taiwan.',zh:'台湾花莲立川渔场黄金蚬®的马来西亚授权代理。'},
+  footer_copy:    {en:'© 2026 BioGreeno · All rights reserved · For educational purposes only',zh:'© 2026 BioGreeno · 版权所有 · 资料仅供参考用途'},
+
+  // ── GOLDEN CLAM PAGE ──
+  gc_eyebrow:     {en:'Flagship Product · Liver Wellness',zh:'旗舰产品 · 护肝养生'},
+  gc_title:       {en:'Golden Clam®',zh:'黄金蚬®'},
+  gc_subtitle:    {en:'Chewable Tablets',zh:'口嚼片'},
+  gc_origin:      {en:'Lichuan Aquafarm · Hualien, Taiwan · Est. 1989',zh:'立川渔场 · 台湾花莲 · 1989年命名'},
+  gc_desc:        {en:"The world's only Golden Clam, born of Hualien's living spring waters. Taiwan's national Health Food Certification (A00207) — the gold standard of liver wellness.",zh:'世界唯一的黄金蚬，孕育于花莲活水涌泉。荣获台湾国家健康食品认证（A00207号）—— 护肝养生的黄金标准。'},
+  gc_cert_badge:  {en:'Taiwan Health Food Cert. No. A00207',zh:'台湾健康食品认证 第A00207号'},
+  gc_price_lbl:   {en:'Price',zh:'售价'},
+  gc_price:       {en:'RM —',zh:'RM —'},
+  gc_dosage:      {en:'60 chewable tablets / bottle',zh:'每瓶60粒口嚼片'},
+  gc_buy:         {en:'Buy Now via WhatsApp',zh:'立即通过 WhatsApp 订购'},
+  gc_learn:       {en:'Learn More ↓',zh:'了解更多 ↓'},
+
+  gc_why_eyebrow: {en:'01 — Why Golden Clam?',zh:'01 — 为何选择黄金蚬？'},
+  gc_why_t1:      {en:'Not all clams are',zh:'并非所有的蚬'},
+  gc_why_t2:      {en:'Golden Clam.',zh:'都是黄金蚬。'},
+  gc_why_body:    {en:"Outside Hualien's Shoufeng Township, the Golden Clam loses its potency. Grown in living spring water filtered through mineral-rich mountains, fed by bio-cultivated algae. Lichuan Aquafarm named and patented this species in 1989. No other farm produces it.",zh:'离开了花莲寿丰乡，就没有效性的黄金蚬。生长于矿物丰富的山脉过滤后涌出的活水，配合生物科技培育的有机藻类。立川渔场于1989年正式命名并申请专利，世界上无他家可以生产。'},
+
+  gc_comp_eyebrow:{en:'02 — How It Compares',zh:'02 — 与其他蚬比较'},
+  gc_comp_t1:     {en:'The gold standard,',zh:'黄金标准，'},
+  gc_comp_t2:     {en:'by the numbers.',zh:'数字为证。'},
+  col_gc:         {en:'Golden Clam',zh:'黄金蚬'},
+  col_yam:        {en:'Yamato Clam',zh:'大和蜆'},
+  col_reg:        {en:'Regular Clam',zh:'一般蚬'},
+
+  gc_nut_eyebrow: {en:'03 — Nutritional Profile',zh:'03 — 营养精萃'},
+  gc_nut_t1:      {en:'Three layers of',zh:'三层'},
+  gc_nut_t2:      {en:'extraordinary nutrition.',zh:'卓越营养。'},
+
+  gc_ben_eyebrow: {en:'04 — Six Benefits',zh:'04 — 六大功效'},
+  gc_ben_t1:      {en:'Six quiet',zh:'六种'},
+  gc_ben_t2:      {en:'improvements.',zh:'身体改善。'},
+  gc_ben_body:    {en:'Not transformation. Restoration. The body, returning to its best self.',zh:'不是改变。是恢复。身体，回归最佳状态。'},
+  ben1_t:{en:'Regulates immunity',zh:'调节免疫'},
+  ben1_b:{en:"Supports the body's natural defenses for everyday resilience.",zh:'支持身体自然防御，日常抵抗力的基石。'},
+  ben2_t:{en:'Stamina & vitality',zh:'体力 · 活力'},
+  ben2_b:{en:'Reduces fatigue and strengthens overall physical performance.',zh:'减少疲劳感，增强整体体力表现。'},
+  ben3_t:{en:'Bone & joint health',zh:'骨与关节'},
+  ben3_b:{en:'Optimal calcium-phosphorus ratio for stronger, more flexible joints.',zh:'理想钙磷比例，让骨骼更坚强、关节更灵活。'},
+  ben4_t:{en:'Liver detox & alcohol',zh:'护肝 · 解酒'},
+  ben4_b:{en:'Aids the liver in detoxification. GOT and GPT values significantly reduced in clinical studies.',zh:'助肝排毒。临床研究显示GOT与GPT肝酵素指数显著下降。'},
+  ben5_t:{en:'Calm & composed',zh:'气定神闲'},
+  ben5_b:{en:'A natural calming effect; reduces anxiety and irritability.',zh:'天然安神之效；减少焦虑，不易动怒。'},
+  ben6_t:{en:'Lipid metabolism',zh:'血脂代谢'},
+  ben6_b:{en:'Improves how the body processes fats — inside out.',zh:'改善身体的脂肪代谢 —— 由内而外。'},
+
+  gc_sci_eyebrow: {en:'05 — Scientifically Proven',zh:'05 — 科学实证'},
+  gc_sci_t1:      {en:"Taiwan's national",zh:'台湾国家'},
+  gc_sci_t2:      {en:'Health Food Certification.',zh:'健康食品认证。'},
+  gc_sci_body:    {en:'Animal studies showed rats with CCl₄-induced liver damage had significantly lower GOT (AST) and GPT (ALT) markers after 8 weeks of consumption. This earned Golden Clam® Taiwan\'s official Health Food Certification No. A00207.',zh:'动物实验证明：经四氯化碳诱发肝损伤的大鼠，持续食用黄金蚬精锭八周后，GOT（AST）与GPT（ALT）肝酵素指数显著下降。此实证使黄金蚬®荣获台湾健康食品认证 第A00207号。'},
+  gc_sci_after:   {en:'After 8 weeks',zh:'连续食用8周后'},
+  gc_sci_gb:      {en:'Golden Clam® group',zh:'食用黄金蚬组'},
+  gc_sci_ga:      {en:'Control group',zh:'未食用组'},
+
+  gc_six_eyebrow: {en:'06 — Purity Guaranteed',zh:'06 — 纯净保证'},
+  gc_six_t1:      {en:'Six things you will',zh:'六样'},
+  gc_six_t2:      {en:'never find inside.',zh:'您不会在里面找到的东西。'},
+  gc_six_body:    {en:'SGS and TÜV Rheinland third-party verified. Every batch, every bottle.',zh:'SGS与TÜV莱因第三方认证。每批次，每一瓶。'},
+  six_1:{en:'No Pesticides',zh:'无农药'},
+  six_2:{en:'No Western Drugs',zh:'无西药'},
+  six_3:{en:'No Heavy Metals',zh:'无重金属'},
+  six_4:{en:'No Plasticisers',zh:'无塑化剂'},
+  six_5:{en:'No Preservatives',zh:'无防腐剂'},
+  six_6:{en:'No E. coli',zh:'无大肠杆菌'},
+
+  gc_how_eyebrow: {en:'07 — How to Take',zh:'07 — 如何食用'},
+  gc_how_t1:      {en:'Simple,',zh:'简单，'},
+  gc_how_t2:      {en:'consistent, daily.',zh:'坚持，每日。'},
+  how1_t:{en:'General maintenance',zh:'日常保养'},
+  how1_b:{en:'3 tablets nightly before bed. Body meridians rest during sleep, absorbing nutrients most effectively.',zh:'每晚睡前3粒。睡眠期间身体经络休息，营养吸收最佳。'},
+  how2_t:{en:'Intensive care',zh:'加强调理'},
+  how2_b:{en:'3 tablets morning + 3 tablets at night, based on your body\'s needs.',zh:'早晚各3粒，视身体需要调整。'},
+  how3_t:{en:'Suitable for',zh:'适合人群'},
+  how3_b:{en:'Adults, elderly, children, vegetarians, and pregnant women. Clam has been a traditional nutrition food for all ages across East Asia.',zh:'成人、长者、儿童、素食者、孕妇均适宜。蚬自古以来是东亚各年龄层的传统营养食品。'},
+
+  gc_cta_t1:      {en:'Ready to experience',zh:'准备好体验'},
+  gc_cta_t2:      {en:'Golden Clam®?',zh:'黄金蚬®了吗？'},
+  gc_cta_body:    {en:'Order directly via WhatsApp. Our team will respond within 24 hours.',zh:'直接通过WhatsApp订购。我们的团队将在24小时内回复。'},
+  gc_cta_btn:     {en:'Order via WhatsApp',zh:'通过WhatsApp订购'},
+  gc_cta_note:    {en:'Authorised distributor · Genuine product · Direct from BioGreeno Malaysia',zh:'授权代理 · 正品保证 · 直接来自BioGreeno马来西亚'},
+
+  // ── CERTIFICATIONS PAGE ──
+  cert_page_eyebrow:{en:'Certifications & Proof',zh:'认证与佐证'},
+  cert_page_t1:   {en:'Trust,',zh:'信任，'},
+  cert_page_t2:   {en:'verified.',zh:'经得起验证。'},
+  cert_page_body: {en:'Premium Golden Clam® holds Taiwan\'s national Health Food Certification (A00207), backed by 20+ years of independent research from five government bodies and academic institutions.',zh:'黄金蚬®荣获台湾卫福部健康食品认证（A00207号），由五大政府机构与学术界连续二十多年的独立研究背书。'},
+  cert_h_lbl:     {en:'Health Food Certified',zh:'国家健康食品认证'},
+  cert_h_desc:    {en:'Liver protection officially recognised by Taiwan Ministry of Health & Welfare.',zh:'台湾卫生福利部正式认证之护肝健康食品。'},
+  cert_s_lbl:     {en:'Scientifically Studied',zh:'科学实证'},
+  cert_s_desc:    {en:'Animal studies show significant reduction in GOT (AST) and GPT (ALT) liver enzyme markers after 8 weeks.',zh:'动物实验显示，连续食用八周后，GOT（AST）与GPT（ALT）肝酵素指数显著下降。'},
+  cert_t_lbl:     {en:'Third-party Tested',zh:'第三方检验'},
+  cert_t_desc:    {en:'SGS and TÜV Rheinland verified: free from pesticides, drugs, heavy metals, plasticisers, preservatives, and E. coli.',zh:'SGS与TÜV莱因双重认证：无农药、无西药、无重金属、无塑化剂、无防腐剂、无大肠杆菌。'},
+  cert_six_title: {en:'The Six "Frees"',zh:'六大「无」'},
+  cert_steps_t:   {en:'From farm to tablet — eight measured steps',zh:'从养殖到锭剂，八步严密把关'},
+  cert_steps:     {en:'Farming · Harvest · Extraction · Inspection · Quick-Freeze · Re-inspection · Tablet · Packaging',zh:'养殖 · 采收 · 萃取 · 检验 · 急冻 · 复检 · 制锭 · 包装'},
+  awards_eyebrow: {en:'Awards & Recognition',zh:'荣誉与奖项'},
+  awards_t1:      {en:'Five government bodies.',zh:'五大政府机构。'},
+  awards_t2:      {en:'Twenty years of research.',zh:'二十年研究不间断。'},
+
+  // ── TESTIMONIALS PAGE ──
+  test_page_eyebrow:{en:'Testimonials',zh:'见证'},
+  test_page_t1:   {en:'Real people.',zh:'真实的人。'},
+  test_page_t2:   {en:'Real results.',zh:'真实的改变。'},
+  test_page_body: {en:'What our customers say, in their own words. Unedited, unsponsored, unhurried.',zh:'顾客的真实心声，未经修饰，发自内心，娓娓道来。'},
+  test4:          {en:'After my medical check-up showed elevated liver enzymes, my doctor suggested lifestyle changes. A friend recommended Golden Clam. Six months in, my numbers are back in range. I have more energy than I have had in years.',zh:'体检发现肝酵素偏高后，医生建议我改变生活方式。朋友推荐了黄金蚬。六个月后，指数恢复正常。我感觉比多年来都更有精力。'},
+  test4_n:        {en:'Dr. Wong K.H.',zh:'黄医生'},
+  test4_c:        {en:'Johor Bahru',zh:'新山'},
+  test5:          {en:'My husband travels often for work. He used to come home exhausted for days. Since taking Golden Clam, the recovery is faster. He says he sleeps more deeply.',zh:'我先生经常出差，以往回家后要好几天才能恢复精力。服用黄金蚬后，恢复明显加快。他说睡眠质量也改善了。'},
+  test5_n:        {en:'Priya S.',zh:'Priya S.'},
+  test5_c:        {en:'Shah Alam',zh:'莎阿南'},
+  test6:          {en:'We are a family of five taking this together. My parents for their liver health, my children for immunity. It has become a quiet family ritual — three tablets, before bed.',zh:'我们一家五口一起服用。父母为护肝，孩子为增强免疫力。这已成为我们家的日常仪式 —— 睡前三粒。'},
+  test6_n:        {en:'Lim W.H.',zh:'林伟豪'},
+  test6_c:        {en:'Ipoh',zh:'怡保'},
+
+  // SpringLife placeholder
+  spring_coming:  {en:'SpringLife® — Coming Soon',zh:'SpringLife® —— 即将推出'},
+  spring_body:    {en:'We are preparing the SpringLife® product page. Please check back soon or contact us via WhatsApp for more information.',zh:'我们正在准备SpringLife®产品页面。请稍后再来，或通过WhatsApp联系我们获取更多信息。'},
+  sl_eyebrow:    {en:'Spring of Life · Cellular Nutrition',zh:'生命之泉 · 细胞营养液'},
+  sl_subtitle:   {en:'Water-Soluble Silicon · Silicon Crystal Spring',zh:'水溶性硅素 · 硅素晶华泉'},
+  sl_size:       {en:'50ml dropper bottle',zh:'50ml 滴管瓶'},
+  sl_desc:       {en:"Silicon is an essential trace element — and the one most commonly deficient in modern humans. Sourced from white quartz crystal formed 1 billion years ago and extracted at 2000°C, SpringLife® delivers the purest cellular silicon supplementation available.",zh:'硅素是人体必需的微量元素 —— 也是现代人最普遍缺乏的。源自10亿年前地球火山产生的白水晶石，以2000°C高温提取，SpringLife®带来最纯净的细胞硅素补充。'},
+  sl_badge:      {en:'GLP Medical Safety Certified · Zero Genetic Toxicity',zh:'GLP医学安全性认证 · 无遗传毒性'},
+  sl_price_lbl:  {en:'Price',zh:'售价'},
+  sl_dosage:     {en:'50ml / approx. 10–25 days',zh:'50ml / 约10–25日用量'},
+  sl_buy:        {en:'Order via WhatsApp',zh:'通过WhatsApp订购'},
+  sl_why_eyebrow:{en:'01 — Why We Need Silicon',zh:'01 — 为什么我们需要硅素'},
+  sl_why_t1:     {en:'The body cannot produce it',zh:'人体无法自产，'},
+  sl_why_t2:     {en:'yet loses it daily.',zh:'却每天流失。'},
+  sl_why_p1:     {en:"Silicon is the 2nd most abundant element in Earth's crust and an essential trace element. But common forms cannot be absorbed directly — the body cannot synthesise it and can only replenish through diet.",zh:'硅是地壳中含量排行第二的元素，也是人体必需的微量元素。但硅的常见存在形式并不能被人体直接吸收，只能依靠进食来补充。'},
+  sl_why_p2:     {en:'Industrial development and chemical fertilisers have depleted silicon from soil. Crops contain less and less. Modern humans can no longer obtain sufficient silicon from diet alone.',zh:'工业的发展造成土壤中硅素大量流失，农作物中的硅素含量渐渐减少。我们再也摄取不到足量的自然生态硅素。'},
+  sl_why_p3:     {en:'After age 20, the body begins losing its ability to store silicon — making supplementation increasingly important with age.',zh:'人体自身不能产生硅素，并且在20岁以后，身体开始失去储存硅元素的能力 —— 补充硅素因此变得尤为重要。'},
+  sl_src_eyebrow:{en:'02 — The Source',zh:'02 — 原料来源'},
+  sl_src_t1:     {en:'1 billion years ago,',zh:'10亿年前，'},
+  sl_src_t2:     {en:'a gift from the Earth.',zh:'地球的馈赠。'},
+  sl_src_body:   {en:"SpringLife® is sourced from white quartz crystal formed 1 billion years ago during Earth's volcanic eruptions. Only 1 in 100 excavated crystals contains active silicon. Using world-first technology: 8 hours at 2000°C releases the silicon from within the crystal.",zh:'SpringLife®原料源自10亿年前地球喷火时所产生的白水晶石。被发掘的水晶石里100个之中只有1个含有活性硅素，非常稀贵。运用全球首创的最先进提取技术，以8小时的2000°C高温燃烧使水晶里的硅素成分被分解出来。'},
+  sl_pow_eyebrow:{en:'03 — Five Extraordinary Powers',zh:'03 — 五大超强能力'},
+  sl_pow_t1:     {en:'Five extraordinary powers.',zh:'五大超强能力，'},
+  sl_pow_t2:     {en:'Every cell.',zh:'守护每一个细胞。'},
+  sl_p1t:{en:'Ultra Penetration',zh:'超强渗透性'},
+  sl_p1b:{en:'0.4nm molecules rapidly penetrate cells and intestinal walls for swift absorption, digestion and metabolism.',zh:'0.4纳米细小分子，能快速渗透细胞，快速渗透肠道吸收、消化、代谢。'},
+  sl_p2t:{en:'Ultra Regeneration',zh:'超强再生力'},
+  sl_p2b:{en:'Repairs, activates and regenerates damaged cell tissue, skin tissue and connective tissue.',zh:'对被破坏的细胞组织、皮肤组织、结缔组织进行修复、激活、再生。'},
+  sl_p3t:{en:'Ultra Antibacterial',zh:'超强杀菌性'},
+  sl_p3b:{en:'Powerful instant sterilisation against E. coli and Legionella bacteria.',zh:'对大肠杆菌和军团杆菌具有强力的瞬间灭菌作用。'},
+  sl_p4t:{en:'Ultra Anti-inflammatory',zh:'超强消炎力'},
+  sl_p4b:{en:'Powerfully inhibits cellular inflammation and rapidly reduces inflammation in damaged skin tissue.',zh:'具有强力阻止细胞炎症发展的作用，对被破坏的皮肤组织能够快速消炎，迅速恢复。'},
+  sl_p5t:{en:'Ultra Cleansing',zh:'超强洗净力'},
+  sl_p5b:{en:'Exceptionally strong purification — rapidly decomposes chemical residues in food.',zh:'净化性很强，能够快速将食物中的化学残留物进行分解。'},
+  sl_ben_eyebrow:{en:'04 — Six Health Benefits',zh:'04 — 六大健康功效'},
+  sl_ben_t1:     {en:'Begins at the cell.',zh:'从细胞开始，'},
+  sl_ben_t2:     {en:'Total body protection.',zh:'全面守护健康。'},
+  sl_ben_body:   {en:'Silicon is present in every vital organ and system. Supplementing silicon provides foundational, whole-body support.',zh:'硅素广泛存在于人体每一个重要器官与系统。补充硅素，等于从根本为身体提供全面支援。'},
+  sl_b1t:{en:'Gut Health',zh:'肠道健康'},
+  sl_b1b:{en:'Softens and clears hardened waste and toxins from intestines; activates beneficial bacteria, removes harmful bacteria, strengthens the immune system.',zh:'软化及清除肠道内已硬化的致病废物及毒素；活化肠道好菌，去除坏菌，提高免疫系统。'},
+  sl_b2t:{en:'Vascular & Heart',zh:'血管与心脏'},
+  sl_b2b:{en:'Silicon is the main component of blood vessel walls. It repairs damaged vessels, softens arteries, and expels accumulated cholesterol and lipids.',zh:'硅素是血管壁的主要成分，能修复受损血管、软化血管、清扫堆积的血脂与胆固醇并排出体外。'},
+  sl_b3t:{en:'Detox & Cleanse',zh:'排毒清洁'},
+  sl_b3b:{en:'The only known trace element that can absorb and expel radioactive elements, chemical toxins, and heavy metals.',zh:'硅素是已知唯一能够吸附并排出放射性元素的有益微量元素，同时能排出化学毒素及重金属。'},
+  sl_b4t:{en:'Beauty Mineral',zh:'美容无机盐'},
+  sl_b4b:{en:'Promotes collagen and cell regeneration. Improves hair lustre, prevents hair loss, brightens eyes, firms and refines skin, clears acne and pigmentation.',zh:'促进胶原蛋白和细胞再生。使秀发光泽靓丽、防止脱发、使眼睛明亮、皮肤紧致细腻、去痘去色斑。'},
+  sl_b5t:{en:'Bone & Joint',zh:'骨骼与关节'},
+  sl_b5b:{en:'An essential trace element for maintaining bone strength and joint flexibility.',zh:'硅素广泛存在于骨骼与软骨中，是维持骨骼强度与关节弹性不可或缺的微量元素。'},
+  sl_b6t:{en:'Cellular Nutrition',zh:'细胞营养'},
+  sl_b6b:{en:'Present in eyes, nerves, pancreas, spleen, lungs, liver, kidneys, lymph nodes, immune cells and brain — essential to every cell.',zh:'存在于眼球、神经、胰脏、脾脏、肺、肝脏、肾脏、淋巴腺、免疫细胞、大脑中 —— 是细胞不可缺少的重要元素。'},
+  sl_how_eyebrow:{en:'05 — How to Use',zh:'05 — 建议服用法'},
+  sl_how_t1:     {en:'A few drops,',zh:'每日几滴，'},
+  sl_how_t2:     {en:'nourishing every cell.',zh:'滋养每一个细胞。'},
+  sl_h1t:{en:'General Wellness',zh:'身体健康者'},
+  sl_h1d:{en:'2–5ml daily',zh:'每日 2–5ml'},
+  sl_h1b:{en:'Add to water or beverages; may be taken in divided doses throughout the day.',zh:'加入水或饮料中饮用，可分数次摄取。'},
+  sl_h2t:{en:'Health Support',zh:'健康状态不良 / 患有疾病者'},
+  sl_h2d:{en:'10–15ml daily',zh:'每日 10–15ml'},
+  sl_h2b:{en:'Add to water or beverages; may be taken in divided doses throughout the day.',zh:'加入水或饮料中饮用，可分数次摄取。'},
+  sl_note1:{en:'Heat-stable — safe to add to cooking',zh:'加入菜肴料理中烧煮等加热对成份无影响'},
+  sl_note2:{en:'No reaction means dose is too low; reduce if experiencing healing response',zh:'饮用没反应表示量不够，好转反应量可减少'},
+  sl_note3:{en:'Absorbed within 120 min; excess excreted within 3–9 hours via urine',zh:'摄取后120分钟内血清硅素浓度上升，3–9小时经尿液排出多余量'},
+  sl_safety:{en:'GLP pharmaceutical safety testing confirmed: silicon has zero genetic toxicity',zh:'GLP医学品基准安全性试验证实：硅素无遗传毒性'},
+  sl_cta_t1:{en:'Ready to experience',zh:'准备好体验'},
+  sl_cta_t2:{en:'SpringLife®?',zh:'SpringLife®了吗？'},
+  sl_cta_body:{en:'Order directly via WhatsApp. Our team will respond within 24 hours.',zh:'直接通过WhatsApp订购。我们的团队将在24小时内回复。'},
+  sl_cta_note:{en:'Authorised distributor · Genuine product · BioGreeno Malaysia',zh:'授权代理 · 正品保证 · BioGreeno Malaysia'},
+};
+
+const t = (key,lang) => T[key] ? T[key][lang] : key;
+
+// ─────────────────────────────────────────────
+// ICONS
+// ─────────────────────────────────────────────
+const I = {
+  Bag:       p=><svg {...ip(p)}><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>,
+  Menu:      p=><svg {...ip(p)}><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>,
+  X:         p=><svg {...ip(p)}><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>,
+  Arrow:     p=><svg {...ip(p)}><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>,
+  ArrowUR:   p=><svg {...ip(p)}><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>,
+  Star:      p=><svg {...ip(p,true)}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>,
+  Shield:    p=><svg {...ip(p)}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>,
+  Heart:     p=><svg {...ip(p)}><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>,
+  Sparkles:  p=><svg {...ip(p)}><path d="M12 3l1.9 5.6L19.5 10.5l-5.6 1.9L12 18l-1.9-5.6L4.5 10.5l5.6-1.9L12 3z"/></svg>,
+  Activity:  p=><svg {...ip(p)}><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>,
+  Droplet:   p=><svg {...ip(p)}><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>,
+  Bone:      p=><svg {...ip(p)}><path d="M17 10c.7-.7 1.69 0 2.5 0a2.5 2.5 0 1 0 0-5 .5.5 0 0 1-.5-.5 2.5 2.5 0 1 0-5 0c0 .81.7 1.8 0 2.5l-7 7c-.7.7-1.69 0-2.5 0a2.5 2.5 0 0 0 0 5c.28 0 .5.22.5.5a2.5 2.5 0 1 0 5 0c0-.81-.7-1.8 0-2.5z"/></svg>,
+  Quote:     p=><svg {...ip(p)}><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/></svg>,
+  MapPin:    p=><svg {...ip(p)}><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>,
+  Phone:     p=><svg {...ip(p)}><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.37 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.33 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>,
+  Mail:      p=><svg {...ip(p)}><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>,
+  Instagram: p=><svg {...ip(p)}><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>,
+  Facebook:  p=><svg {...ip(p)}><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>,
+  Globe:     p=><svg {...ip(p)}><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>,
+  ChevDown:  p=><svg {...ip(p)}><polyline points="6 9 12 15 18 9"/></svg>,
+  Award:     p=><svg {...ip(p)}><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>,
+  Moon:      p=><svg {...ip(p)}><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>,
+  Sun:       p=><svg {...ip(p)}><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/></svg>,
+  Users:     p=><svg {...ip(p)}><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
+  Check:     p=><svg {...ip(p)}><polyline points="20 6 9 17 4 12"/></svg>,
+  Plus:      p=><svg {...ip(p)}><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>,
+};
+function ip(p={},filled=false){return{width:p.size||20,height:p.size||20,viewBox:'0 0 24 24',fill:filled?(p.fill||'currentColor'):'none',stroke:'currentColor',strokeWidth:p.strokeWidth||1.5,strokeLinecap:'round',strokeLinejoin:'round',className:p.className||''};}
+
+// WhatsApp SVG path
+const WA_PATH = "M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z";
+
+// ─────────────────────────────────────────────
+// SHARED COMPONENTS
+// ─────────────────────────────────────────────
+function Nav({page, setPage, lang, toggleLang, scrolled}) {
+  const [open, setOpen] = useState(false);
+  const tx = k => t(k,lang);
+  const go = (p) => { setPage(p); setOpen(false); window.scrollTo(0,0); };
+  return (
+    <header className={"sticky top-0 z-40 transition-all duration-300 "+(scrolled?'bg-[#F5F1E8]/95 backdrop-blur-md border-b border-[#1F2519]/10':'bg-transparent border-b border-transparent')}>
+      <div className="max-w-[1400px] mx-auto px-6 md:px-12 flex items-center justify-between py-5">
+        <button onClick={()=>setOpen(!open)} className="md:hidden p-1">{open?<I.X size={22}/>:<I.Menu size={22}/>}</button>
+        <nav className="hidden md:flex items-center gap-9 smallcaps text-[11px] font-medium">
+          {/* Products dropdown */}
+          <div className="relative dropdown">
+            <button className="flex items-center gap-1 hover:text-[#6A8056] transition-colors">
+              {tx('nav_products')} <I.ChevDown size={11}/>
+            </button>
+            <div className="dropdown-menu absolute top-full left-0 mt-2 w-44 bg-[#F5F1E8] border border-[#1F2519]/10 shadow-lg z-50">
+              <button onClick={()=>go('golden-clam')} className={"block w-full text-left px-5 py-3 smallcaps text-[10px] hover:bg-[#EFE8D6] transition-colors border-b border-[#1F2519]/10 "+(page==='golden-clam'?'text-[#6A8056] bg-[#EFE8D6]':'')}>
+                {tx('nav_golden')}
+              </button>
+              <button onClick={()=>go('springlife')} className={"block w-full text-left px-5 py-3 smallcaps text-[10px] hover:bg-[#EFE8D6] transition-colors "+(page==='springlife'?'text-[#6A8056] bg-[#EFE8D6]':'')}>
+                {tx('nav_spring')}
+              </button>
+            </div>
+          </div>
+          <button onClick={()=>go('hualien')} className={"hover:text-[#6A8056] transition-colors "+(page==='hualien'?'text-[#6A8056]':'')}>{tx('nav_hualien')}</button>
+          <button onClick={()=>go('certifications')} className={"hover:text-[#6A8056] transition-colors "+(page==='certifications'?'text-[#6A8056]':'')}>{tx('nav_cert')}</button>
+          <button onClick={()=>go('testimonials')} className={"hover:text-[#6A8056] transition-colors "+(page==='testimonials'?'text-[#6A8056]':'')}>{tx('nav_testimony')}</button>
+          <button onClick={()=>go('home')} className="hover:text-[#6A8056] transition-colors">{tx('nav_contact')}</button>
+        </nav>
+        <button onClick={()=>go('home')} className="font-serif-display text-2xl md:text-[28px] tracking-tight font-medium">
+          biogreeno<span className="text-[#6A8056]">.</span>
+        </button>
+        <div className="flex items-center gap-5">
+          <button onClick={toggleLang} className="flex items-center gap-1.5 smallcaps text-[11px] hover:text-[#6A8056] transition-colors">
+            <I.Globe size={14}/>
+            <span className={lang==='en'?'font-semibold':'opacity-50'}>EN</span>
+            <span className="opacity-30">/</span>
+            <span className={lang==='zh'?'font-semibold':'opacity-50'}>中文</span>
+          </button>
+          <button className="relative hover:text-[#6A8056]">
+            <I.Bag size={18}/>
+            <span className="absolute -top-1.5 -right-1.5 bg-[#6A8056] text-[#F5F1E8] text-[9px] w-4 h-4 rounded-full flex items-center justify-center">0</span>
+          </button>
+        </div>
+      </div>
+      {open && (
+        <div className="md:hidden bg-[#F5F1E8] border-t border-[#1F2519]/10 py-5 px-6">
+          <nav className="flex flex-col gap-4 smallcaps text-sm">
+            <div className="text-[10px] font-semibold text-[#6A8056]">{tx('nav_products')}</div>
+            <button onClick={()=>go('golden-clam')} className="pl-3 text-left hover:text-[#6A8056]">{tx('nav_golden')}</button>
+            <button onClick={()=>go('springlife')} className="pl-3 text-left hover:text-[#6A8056]">{tx('nav_spring')}</button>
+            <button onClick={()=>go('hualien')} className="text-left hover:text-[#6A8056]">{tx('nav_hualien')}</button>
+            <button onClick={()=>go('certifications')} className="text-left hover:text-[#6A8056]">{tx('nav_cert')}</button>
+            <button onClick={()=>go('testimonials')} className="text-left hover:text-[#6A8056]">{tx('nav_testimony')}</button>
+            <button onClick={()=>go('home')} className="text-left hover:text-[#6A8056]">{tx('nav_contact')}</button>
+          </nav>
+        </div>
+      )}
+    </header>
+  );
+}
+
+function Footer({lang, setPage}) {
+  const tx = k=>t(k,lang);
+  const go = p => { setPage(p); window.scrollTo(0,0); };
+  const certs = ['cert_1','cert_2','cert_3','cert_4','cert_5'].map(k=>tx(k));
+  return (
+    <footer className="bg-[#1F2519] text-[#F5F1E8] pt-16 pb-8 px-6 md:px-12">
+      <div className="max-w-[1400px] mx-auto grid md:grid-cols-12 gap-10 mb-12">
+        <div className="md:col-span-4">
+          <div className="font-serif-display text-3xl mb-4">biogreeno<span className="text-[#6A8056]">.</span></div>
+          <p className="text-sm leading-relaxed text-[#F5F1E8]/65 font-light max-w-xs mb-6">{tx('footer_tagline')}</p>
+          <div className="flex gap-3">
+            <a href="#" className="w-9 h-9 border border-[#F5F1E8]/30 flex items-center justify-center hover:bg-[#F5F1E8] hover:text-[#1F2519] transition-colors"><I.Instagram size={14}/></a>
+            <a href="#" className="w-9 h-9 border border-[#F5F1E8]/30 flex items-center justify-center hover:bg-[#F5F1E8] hover:text-[#1F2519] transition-colors"><I.Facebook size={14}/></a>
+          </div>
+        </div>
+        <div className="md:col-span-2">
+          <div className="smallcaps text-[10px] text-[#F5F1E8]/50 mb-5">{tx('nav_products')}</div>
+          <ul className="space-y-2.5">
+            <li><button onClick={()=>go('golden-clam')} className="text-sm text-[#F5F1E8]/85 hover:text-[#6A8056] transition-colors font-light">{tx('nav_golden')}</button></li>
+            <li><button onClick={()=>go('springlife')} className="text-sm text-[#F5F1E8]/85 hover:text-[#6A8056] transition-colors font-light">{tx('nav_spring')}</button></li>
+          </ul>
+        </div>
+        <div className="md:col-span-2">
+          <div className="smallcaps text-[10px] text-[#F5F1E8]/50 mb-5">{tx('nav_hualien')}</div>
+          <ul className="space-y-2.5">
+            <li><button onClick={()=>go('certifications')} className="text-sm text-[#F5F1E8]/85 hover:text-[#6A8056] transition-colors font-light">{tx('nav_cert')}</button></li>
+            <li><button onClick={()=>go('testimonials')} className="text-sm text-[#F5F1E8]/85 hover:text-[#6A8056] transition-colors font-light">{tx('nav_testimony')}</button></li>
+          </ul>
+        </div>
+        <div className="md:col-span-2">
+          <div className="smallcaps text-[10px] text-[#F5F1E8]/50 mb-5">{tx('nav_contact')}</div>
+          <ul className="space-y-2.5">
+            <li><a href="https://wa.me/60123456789" className="text-sm text-[#F5F1E8]/85 hover:text-[#6A8056] transition-colors font-light">WhatsApp</a></li>
+            <li><a href="mailto:hello@biogreeno.com" className="text-sm text-[#F5F1E8]/85 hover:text-[#6A8056] transition-colors font-light">hello@biogreeno.com</a></li>
+          </ul>
+        </div>
+      </div>
+      <div className="max-w-[1400px] mx-auto border-t border-[#F5F1E8]/15 pt-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+        <div className="smallcaps text-[10px] text-[#F5F1E8]/50">{tx('footer_copy')}</div>
+        <div className="flex flex-wrap gap-x-4 gap-y-1 smallcaps text-[10px] text-[#F5F1E8]/40">
+          {certs.map(c=><span key={c}>{c}</span>)}
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+function WAButton() {
+  return (
+    <a href="https://wa.me/60123456789" target="_blank" rel="noopener noreferrer"
+      className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-[#6A8056] text-[#F5F1E8] rounded-full flex items-center justify-center shadow-lg pulse-ring hover:bg-[#1F2519] transition-colors">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d={WA_PATH}/></svg>
+    </a>
+  );
+}
+
+function Stat({n,label,light=false}) {
+  return (
+    <div>
+      <div className={"font-serif-display text-3xl md:text-4xl leading-none mb-2 "+(light?'text-[#D4DBC8]':'text-[#1F2519]')}>{n}</div>
+      <div className={"smallcaps text-[9px] leading-tight "+(light?'text-[#F5F1E8]/60':'text-[#1F2519]/50')}>{label}</div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────
+// PAGE: HOME
+// ─────────────────────────────────────────────
+function HomePage({lang, setPage}) {
+  const tx = k=>t(k,lang);
+  const certs = ['cert_1','cert_2','cert_3','cert_4','cert_5'].map(k=>tx(k));
+  const tests = [
+    {q:tx('test1'),n:tx('test1_n'),c:tx('test1_c')},
+    {q:tx('test2'),n:tx('test2_n'),c:tx('test2_c')},
+    {q:tx('test3'),n:tx('test3_n'),c:tx('test3_c')},
+  ];
+  const feats = [
+    {n:'01',title:tx('feat1_t'),body:tx('feat1_b')},
+    {n:'02',title:tx('feat2_t'),body:tx('feat2_b')},
+    {n:'03',title:tx('feat3_t'),body:tx('feat3_b')},
+  ];
+  return (
+    <div>
+      {/* Hero */}
+      <section className="relative overflow-hidden bg-[#F5F1E8]">
+        <div className="max-w-[1400px] mx-auto px-6 md:px-12 pt-12 md:pt-20 pb-20 md:pb-28 grid md:grid-cols-12 gap-10 md:gap-14 items-center">
+          <div className="md:col-span-6 relative z-10">
+            <div className="reveal reveal-1 smallcaps text-[11px] text-[#6A8056] mb-8 flex items-center gap-3">
+              <span className="w-8 h-px bg-[#6A8056]"/>{tx('hero_eyebrow')}
+            </div>
+            <h1 className="reveal reveal-2 font-serif-display text-[52px] md:text-[88px] leading-[0.95] tracking-tight font-light mb-8">
+              {tx('hero_t1')}<br/>{tx('hero_t2')}<br/><em className="text-[#6A8056] font-light">{tx('hero_t3')}</em>
+            </h1>
+            <p className="reveal reveal-3 max-w-md text-[17px] leading-[1.7] text-[#1F2519]/75 mb-10 font-light">{tx('hero_body')}</p>
+            <div className="reveal reveal-4 flex flex-wrap items-center gap-6">
+              <button onClick={()=>{setPage('golden-clam');window.scrollTo(0,0);}}
+                className="group inline-flex items-center gap-2 bg-[#1F2519] text-[#F5F1E8] px-8 py-4 smallcaps text-xs hover:bg-[#6A8056] transition-colors">
+                {tx('hero_cta1')} <I.Arrow size={14}/>
+              </button>
+              <button onClick={()=>{setPage('hualien');window.scrollTo(0,0);}}
+                className="group inline-flex items-center gap-1.5 smallcaps text-xs border-b border-[#1F2519] pb-1 hover:border-[#6A8056] hover:text-[#6A8056] transition-colors">
+                {tx('hero_cta2')} <I.ArrowUR size={14}/>
+              </button>
+            </div>
+          </div>
+          <div className="md:col-span-6 relative">
+            <div className="absolute -top-10 -left-6 w-48 h-48 rounded-full bg-[#D4DBC8] blur-2xl opacity-60 float-leaf"/>
+            <div className="reveal reveal-3 relative aspect-[4/5] overflow-hidden">
+              <img src="lichuan-farm.jpg"
+                alt={lang==='zh'?'台湾花莲立川渔场实景':'Lichuan Aquafarm — Hualien, Taiwan'}
+                className="absolute inset-0 w-full h-full object-cover"
+                style={{objectPosition:'center 40%',WebkitMaskImage:'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.4) 12%, rgba(0,0,0,0.85) 28%, black 45%)',maskImage:'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.4) 12%, rgba(0,0,0,0.85) 28%, black 45%)'}}
+              />
+              <div className="absolute top-6 right-6 smallcaps text-[10px] text-[#F5F1E8] tracking-[0.2em] bg-[#1F2519]/40 backdrop-blur-sm px-3 py-1.5">
+                {tx('hero_loc_lbl')} · {tx('hero_loc')}
+              </div>
+              <div className="absolute bottom-6 right-6 text-right text-[#F5F1E8]">
+                <div className="font-serif-display italic text-sm opacity-80">{tx('hero_since')}</div>
+                <div className="font-serif-display text-2xl">1989</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {/* Cert marquee */}
+        <div className="border-y border-[#1F2519]/10 bg-[#F5F1E8] overflow-hidden">
+          <div className="flex marquee whitespace-nowrap py-5">
+            {[...certs,...certs,...certs].map((c,i)=>(
+              <span key={i} className="smallcaps text-[11px] text-[#1F2519]/60 mx-10 flex items-center gap-3">
+                <span className="w-1 h-1 rounded-full bg-[#6A8056]"/>{c}
+              </span>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Clam ≠ Golden Clam */}
+      <section className="py-20 md:py-28 px-6 md:px-12 max-w-[1400px] mx-auto">
+        <div className="text-center max-w-3xl mx-auto">
+          <div className="smallcaps text-[11px] text-[#6A8056] mb-6">{tx('diff_eyebrow')}</div>
+          <h2 className="font-serif-display text-5xl md:text-7xl leading-[1] font-light mb-8">
+            {tx('diff_t1')} <span className="text-[#1F2519]/30 mx-2">{tx('diff_eq')}</span> <em className="text-[#6A8056]">{tx('diff_t2')}</em>
+          </h2>
+          <p className="text-[17px] leading-[1.7] text-[#1F2519]/75 font-light mb-10">{tx('diff_body')}</p>
+          <button onClick={()=>{setPage('golden-clam');window.scrollTo(0,0);}}
+            className="inline-flex items-center gap-2 bg-[#1F2519] text-[#F5F1E8] px-8 py-4 smallcaps text-xs hover:bg-[#6A8056] transition-colors">
+            {tx('diff_cta')} <I.Arrow size={14}/>
+          </button>
+        </div>
+      </section>
+
+      {/* Hualien */}
+      <section id="hualien-section" className="bg-[#1F2519] text-[#F5F1E8] py-24 md:py-36 px-6 md:px-12">
+        <div className="max-w-[1400px] mx-auto grid md:grid-cols-12 gap-10 md:gap-16 items-center">
+          <div className="md:col-span-5">
+            <div className="aspect-[4/5] relative overflow-hidden bg-[#2A3520]">
+              <img src="lichuan-map.jpg"
+                alt={lang==='zh'?'台湾花莲寿丰乡立川渔场地图':'Taiwan map showing Lichuan Aquafarm'}
+                className="absolute inset-0 w-full h-full object-contain"
+              />
+              <div className="absolute top-6 left-6 smallcaps text-[10px] text-[#F5F1E8] tracking-[0.2em] bg-[#1F2519]/50 backdrop-blur-sm px-3 py-1.5 z-10">EST. 1989</div>
+              <div className="absolute bottom-6 left-6 smallcaps text-[9px] text-[#F5F1E8]/85 tracking-[0.2em] bg-[#1F2519]/40 backdrop-blur-sm px-3 py-1.5 z-10">{tx('hualien_img_lbl')}</div>
+            </div>
+          </div>
+          <div className="md:col-span-6 md:col-start-7">
+            <div className="smallcaps text-[11px] text-[#D4DBC8] mb-6 flex items-center gap-3">
+              <span className="w-8 h-px bg-[#D4DBC8]"/>{tx('hualien_eyebrow')}
+            </div>
+            <h2 className="font-serif-display text-5xl md:text-6xl leading-[1.05] font-light mb-8">
+              {tx('hualien_t1')}<br/><em className="text-[#D4DBC8]">{tx('hualien_t2')}</em>
+            </h2>
+            <div className="space-y-5 text-[16px] leading-[1.8] text-[#F5F1E8]/85 font-light max-w-xl">
+              <p>{tx('hualien_p1')}</p><p>{tx('hualien_p2')}</p><p>{tx('hualien_p3')}</p>
+            </div>
+            <div className="mt-12 grid grid-cols-3 gap-6 max-w-md mb-10">
+              <Stat n="1963" label={tx('stat_y')} light/>
+              <Stat n="600+" label={tx('stat_h')} light/>
+              <Stat n="100%" label={tx('stat_s')} light/>
+            </div>
+            <button onClick={()=>{setPage('hualien');window.scrollTo(0,0);}}
+              className="inline-flex items-center gap-2 border border-[#F5F1E8]/40 text-[#F5F1E8] px-8 py-4 smallcaps text-xs hover:bg-[#F5F1E8] hover:text-[#1F2519] transition-colors">
+              {tx('hualien_cta')} <I.Arrow size={14}/>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* Nutritional Profile */}
+      <section className="py-24 md:py-32 px-6 md:px-12 max-w-[1400px] mx-auto">
+        <div className="text-center mb-20">
+          <div className="smallcaps text-[11px] text-[#6A8056] mb-6">{tx('feat_eyebrow')}</div>
+          <h2 className="font-serif-display text-5xl md:text-7xl leading-[1.05] font-light max-w-4xl mx-auto">
+            {tx('feat_t1')}<br/><em className="text-[#6A8056]">{tx('feat_t2')}</em>
+          </h2>
+          <p className="mt-8 max-w-xl mx-auto text-[16px] leading-relaxed text-[#1F2519]/70 font-light">{tx('feat_body')}</p>
+        </div>
+        <div className="grid md:grid-cols-3 gap-8 md:gap-12 border-t border-[#1F2519]/15 pt-12">
+          {feats.map(item=>(
+            <div key={item.n} className="group">
+              <div className="smallcaps text-[10px] text-[#6A8056] mb-4">— {item.n} —</div>
+              <h3 className="font-serif-display text-3xl mb-4 leading-tight">{item.title}</h3>
+              <p className="text-[15px] leading-[1.7] text-[#1F2519]/70 font-light">{item.body}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <section className="bg-[#EFE8D6] py-24 md:py-32 px-6 md:px-12">
+        <div className="max-w-[1400px] mx-auto">
+          <div className="grid md:grid-cols-12 gap-10 mb-16">
+            <div className="md:col-span-5">
+              <div className="smallcaps text-[11px] text-[#6A8056] mb-6 flex items-center gap-3">
+                <span className="w-8 h-px bg-[#6A8056]"/>{tx('test_eyebrow')}
+              </div>
+              <h2 className="font-serif-display text-5xl md:text-6xl leading-[1.05] font-light">
+                {tx('test_t1')}<br/><em className="text-[#6A8056]">{tx('test_t2')}</em>
+              </h2>
+            </div>
+          </div>
+          <div className="grid md:grid-cols-3 gap-8 mb-12">
+            {tests.map((t,i)=>(
+              <figure key={i} className="bg-[#F5F1E8] p-8 md:p-10">
+                <div className="text-[#6A8056]/40 mb-4"><I.Quote size={32} strokeWidth={1}/></div>
+                <blockquote className="font-serif-display text-[22px] leading-[1.4] italic mb-8 text-[#1F2519]/90">{t.q}</blockquote>
+                <figcaption className="border-t border-[#1F2519]/15 pt-4">
+                  <div className="font-serif-display text-base">{t.n}</div>
+                  <div className="smallcaps text-[10px] text-[#1F2519]/50 mt-1">{t.c}</div>
+                </figcaption>
+              </figure>
+            ))}
+          </div>
+          <div className="text-center">
+            <button onClick={()=>{setPage('testimonials');window.scrollTo(0,0);}}
+              className="inline-flex items-center gap-2 border border-[#1F2519]/30 text-[#1F2519] px-8 py-4 smallcaps text-xs hover:bg-[#1F2519] hover:text-[#F5F1E8] transition-colors">
+              {tx('test_cta')} <I.Arrow size={14}/>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* Newsletter */}
+      <section id="contact" className="bg-[#6A8056] text-[#F5F1E8] py-20 md:py-28 px-6 md:px-12">
+        <div className="max-w-[900px] mx-auto text-center">
+          <div className="smallcaps text-[11px] text-[#F5F1E8]/70 mb-6">{tx('nl_eyebrow')}</div>
+          <h2 className="font-serif-display text-4xl md:text-6xl leading-[1.05] font-light mb-6">
+            {tx('nl_t')} <em>{tx('nl_em')}</em>
+          </h2>
+          <p className="max-w-md mx-auto text-[15px] leading-relaxed text-[#F5F1E8]/85 font-light mb-10">{tx('nl_body')}</p>
+          <form className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto" onSubmit={e=>e.preventDefault()}>
+            <input type="email" placeholder={tx('nl_ph')}
+              className="flex-1 bg-transparent border border-[#F5F1E8]/40 px-5 py-3.5 text-sm text-[#F5F1E8] placeholder:text-[#F5F1E8]/50 focus:border-[#F5F1E8] focus:outline-none transition-colors"/>
+            <button type="submit" className="bg-[#F5F1E8] text-[#1F2519] px-7 py-3.5 smallcaps text-xs hover:bg-[#1F2519] hover:text-[#F5F1E8] transition-colors">
+              {tx('nl_btn')}
+            </button>
+          </form>
+          <div className="mt-12 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 smallcaps text-[10px] text-[#F5F1E8]/60">
+            <span className="flex items-center gap-2"><I.MapPin size={11}/> Malaysia</span>
+            <span className="flex items-center gap-2"><I.Phone size={11}/> +60 — ——— ——</span>
+            <span className="flex items-center gap-2"><I.Mail size={11}/> hello@biogreeno.com</span>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────
+// PAGE: GOLDEN CLAM
+// ─────────────────────────────────────────────
+function GoldenClamPage({lang, setPage}) {
+  const tx = k=>t(k,lang);
+  const benefits = [
+    {Icon:I.Shield,  t:tx('ben1_t'),b:tx('ben1_b')},
+    {Icon:I.Activity,t:tx('ben2_t'),b:tx('ben2_b')},
+    {Icon:I.Bone,    t:tx('ben3_t'),b:tx('ben3_b')},
+    {Icon:I.Droplet, t:tx('ben4_t'),b:tx('ben4_b')},
+    {Icon:I.Heart,   t:tx('ben5_t'),b:tx('ben5_b')},
+    {Icon:I.Sparkles,t:tx('ben6_t'),b:tx('ben6_b')},
+  ];
+  const compRows = [
+    [lang==='zh'?'产地':'Origin',         lang==='zh'?'台湾花莲寿丰乡':'Hualien Shoufeng, Taiwan', lang==='zh'?'日本・朝鲜半岛':'Japan / Korean Peninsula', lang==='zh'?'韩・日・中':'Korea / Japan / China'],
+    [lang==='zh'?'外壳颜色':'Shell colour', lang==='zh'?'金黄色':'Golden',               lang==='zh'?'黑色':'Black',                         lang==='zh'?'深褐色':'Dark brown'],
+    [lang==='zh'?'养殖环境':'Environment', lang==='zh'?'天然活水涌泉':'Natural living spring', lang==='zh'?'海水养殖':'Seawater',             lang==='zh'?'仿生态系养殖':'Mock-ecological pond'],
+    [lang==='zh'?'养殖面积':'Farm size',   lang==='zh'?'600甲':'600 hectares',            lang==='zh'?'100–200':'100–200',                   lang==='zh'?'50–200':'50–200'],
+    [lang==='zh'?'健康认证':'Health Cert', lang==='zh'?'有，8家认证':'Yes — 8 certified',   lang==='zh'?'无':'None',                           lang==='zh'?'无':'None'],
+    [lang==='zh'?'胺基酸':'Amino acids',   lang==='zh'?'20种（完整）':'20 types (complete)', lang==='zh'?'部份':'Partial',                    lang==='zh'?'部份':'Partial'],
+    [lang==='zh'?'肝醣含量':'Glycogen',    lang==='zh'?'高达60%':'Up to 60%',             lang==='zh'?'微少':'Trace',                         lang==='zh'?'微少':'Trace'],
+  ];
+  const sixNos = ['six_1','six_2','six_3','six_4','six_5','six_6'];
+  const howTo = [
+    {Icon:I.Moon, t:tx('how1_t'),b:tx('how1_b')},
+    {Icon:I.Sun,  t:tx('how2_t'),b:tx('how2_b')},
+    {Icon:I.Users,t:tx('how3_t'),b:tx('how3_b')},
+  ];
+  return (
+    <div>
+      {/* Hero */}
+      <section className="py-20 md:py-32 px-6 md:px-12 bg-[#F5F1E8]">
+        <div className="max-w-[1400px] mx-auto grid md:grid-cols-12 gap-10 md:gap-16 items-center">
+          <div className="md:col-span-6">
+            <div className="smallcaps text-[11px] text-[#6A8056] mb-6 flex items-center gap-3">
+              <span className="w-8 h-px bg-[#6A8056]"/>{tx('gc_eyebrow')}
+            </div>
+            <h1 className="font-serif-display text-[64px] md:text-[96px] leading-[0.95] mb-4">
+              {tx('gc_title')}<sup className="text-3xl">®</sup>
+            </h1>
+            <div className="smallcaps text-[13px] text-[#1F2519]/60 mb-2">{tx('gc_subtitle')}</div>
+            <div className="smallcaps text-[10px] text-[#6A8056] mb-8">{tx('gc_origin')}</div>
+            <p className="text-[17px] leading-[1.7] text-[#1F2519]/75 font-light mb-6 max-w-lg">{tx('gc_desc')}</p>
+            <div className="inline-flex items-center gap-3 border border-[#6A8056]/40 px-5 py-3 mb-8 bg-[#6A8056]/5">
+              <I.Shield size={18} className="text-[#6A8056]"/>
+              <span className="smallcaps text-[10px] text-[#6A8056]">{tx('gc_cert_badge')}</span>
+            </div>
+            <div className="flex items-center gap-4 mb-8">
+              <div>
+                <div className="smallcaps text-[10px] text-[#1F2519]/50 mb-1">{tx('gc_price_lbl')}</div>
+                <div className="font-serif-display text-3xl">{tx('gc_price')}</div>
+              </div>
+              <div className="h-10 w-px bg-[#1F2519]/15"/>
+              <div className="smallcaps text-[10px] text-[#1F2519]/60">{tx('gc_dosage')}</div>
+            </div>
+            <div className="flex flex-wrap gap-4">
+              <a href="https://wa.me/60123456789" target="_blank" rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 bg-[#1F2519] text-[#F5F1E8] px-8 py-4 smallcaps text-xs hover:bg-[#6A8056] transition-colors">
+                {tx('gc_buy')} <I.Arrow size={14}/>
+              </a>
+              <a href="#gc-benefits"
+                className="inline-flex items-center gap-2 border border-[#1F2519]/30 px-8 py-4 smallcaps text-xs hover:bg-[#1F2519] hover:text-[#F5F1E8] transition-colors">
+                {tx('gc_learn')}
+              </a>
+            </div>
+          </div>
+          <div className="md:col-span-6">
+            <div className="relative aspect-square overflow-hidden bg-[#f8f6f0]">
+              <img
+                src="golden-clam-product.jpg"
+                alt={lang==='zh'?'黄金蚬®口嚼片 — Greeno Golden Clam Chewable Tablet':'Golden Clam® Chewable Tablet — Greeno'}
+                className="absolute inset-0 w-full h-full object-contain p-4"
+              />
+              <div className="absolute top-6 left-6 bg-[#1F2519] text-[#F5F1E8] smallcaps text-[9px] px-3 py-1.5">BESTSELLER</div>
+              <div className="absolute bottom-6 right-6 text-right">
+                <div className="font-serif-display italic text-sm opacity-60 text-[#1F2519]">{lang==='zh'?'由立川渔场命名':'est. by Lichuan'}</div>
+                <div className="font-serif-display text-2xl text-[#1F2519]">1989</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Why */}
+      <section className="py-20 md:py-28 px-6 md:px-12 bg-[#1F2519] text-[#F5F1E8]">
+        <div className="max-w-[1400px] mx-auto grid md:grid-cols-2 gap-16 items-center">
+          <div>
+            <div className="smallcaps text-[11px] text-[#D4DBC8] mb-6 flex items-center gap-3">
+              <span className="w-8 h-px bg-[#D4DBC8]"/>{tx('gc_why_eyebrow')}
+            </div>
+            <h2 className="font-serif-display text-5xl md:text-6xl font-light leading-[1.05] mb-8">
+              {tx('gc_why_t1')}<br/><em className="text-[#D4DBC8]">{tx('gc_why_t2')}</em>
+            </h2>
+            <p className="text-[16px] leading-[1.8] text-[#F5F1E8]/80 font-light">{tx('gc_why_body')}</p>
+          </div>
+          <div className="grid grid-cols-2 gap-6">
+            {[{n:'1963',l:lang==='zh'?'立川集团成立':'Lichuan Founded'},{n:'1989',l:lang==='zh'?'黄金蚬正式命名':'Golden Clam Named'},{n:'600+',l:lang==='zh'?'甲地养殖面积':'Hectares Farmed'},{n:'1/1',l:lang==='zh'?'世界唯一渔场':'Farm Worldwide'}].map((s,i)=>(
+              <div key={i} className="border border-[#F5F1E8]/15 p-6">
+                <div className="font-serif-display text-4xl text-[#D4DBC8] mb-2">{s.n}</div>
+                <div className="smallcaps text-[10px] text-[#F5F1E8]/60">{s.l}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Comparison */}
+      <section className="py-20 md:py-28 px-6 md:px-12">
+        <div className="max-w-[1400px] mx-auto">
+          <div className="mb-16">
+            <div className="smallcaps text-[11px] text-[#6A8056] mb-6 flex items-center gap-3">
+              <span className="w-8 h-px bg-[#6A8056]"/>{tx('gc_comp_eyebrow')}
+            </div>
+            <h2 className="font-serif-display text-5xl md:text-6xl font-light leading-[1.05]">
+              {tx('gc_comp_t1')}<br/><em className="text-[#6A8056]">{tx('gc_comp_t2')}</em>
+            </h2>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="border-b border-[#1F2519]/15">
+                  <th className="text-left py-4 pr-6 w-32"/>
+                  <th className="py-4 px-4 text-center bg-[#1F2519] text-[#F5F1E8]">
+                    <div className="font-serif-display text-lg">{tx('col_gc')}</div>
+                    <div className="smallcaps text-[9px] text-[#D4DBC8]">{lang==='zh'?'花莲寿丰 · 台湾':'Hualien Shoufeng'}</div>
+                  </th>
+                  <th className="py-4 px-4 text-center">
+                    <div className="font-serif-display text-lg">{tx('col_yam')}</div>
+                    <div className="smallcaps text-[9px] text-[#1F2519]/50">{lang==='zh'?'日本・朝鲜':'Japan'}</div>
+                  </th>
+                  <th className="py-4 px-4 text-center">
+                    <div className="font-serif-display text-lg">{tx('col_reg')}</div>
+                    <div className="smallcaps text-[9px] text-[#1F2519]/50">{lang==='zh'?'韩・日・中':'Various'}</div>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {compRows.map((row,i)=>(
+                  <tr key={i} className={"border-b border-[#1F2519]/10 "+(i%2===0?'bg-[#F5F1E8]':'bg-[#EFE8D6]')}>
+                    <td className="py-4 pr-6 smallcaps text-[10px] text-[#1F2519]/60 font-semibold">{row[0]}</td>
+                    <td className="py-4 px-4 text-center bg-[#1F2519]/5 text-sm font-medium text-[#6A8056]">{row[1]}</td>
+                    <td className="py-4 px-4 text-center text-sm text-[#1F2519]/60">{row[2]}</td>
+                    <td className="py-4 px-4 text-center text-sm text-[#1F2519]/60">{row[3]}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      {/* Nutrition */}
+      <section className="py-20 md:py-28 px-6 md:px-12 bg-[#EFE8D6]">
+        <div className="max-w-[1400px] mx-auto">
+          <div className="text-center mb-16">
+            <div className="smallcaps text-[11px] text-[#6A8056] mb-6">{tx('gc_nut_eyebrow')}</div>
+            <h2 className="font-serif-display text-5xl md:text-6xl font-light leading-[1.05]">
+              {tx('gc_nut_t1')}<br/><em className="text-[#6A8056]">{tx('gc_nut_t2')}</em>
+            </h2>
+          </div>
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              {n:'20',l:lang==='zh'?'种胺基酸':'Amino Acids',sub:lang==='zh'?'含全部9种必需胺基酸。FAO蛋白价：100分。':'All 9 essential amino acids included. FAO protein value: 100 — perfect score.',color:'#E8DCC0'},
+              {n:'10',l:lang==='zh'?'种活性成分':'Active Compounds',sub:lang==='zh'?'植物固醇、胆碱、DHA、叶绿素、叶酸、肝醣、谷胱甘肽、类胡萝卜素、Omega-3、菸碱素。':'Plant sterols, choline, DHA, chlorophyll, folate, glycogen, glutathione, carotenoids, Omega-3, niacin.',color:'#D4DBC8'},
+              {n:'26',l:lang==='zh'?'种矿物质与维生素':'Minerals & Vitamins',sub:lang==='zh'?'维生素A、B群、C、E，加上19种矿物质与微量元素。':'Vitamins A, B-complex, C, E — plus 19 minerals and trace elements.',color:'#EBD2CB'},
+            ].map((item,i)=>(
+              <div key={i} className="p-8 md:p-10" style={{background:item.color}}>
+                <div className="font-serif-display text-7xl md:text-8xl leading-none text-[#1F2519] mb-2">{item.n}</div>
+                <div className="font-serif-display text-2xl mb-6">{item.l}</div>
+                <p className="text-[14px] leading-[1.7] text-[#1F2519]/70 font-light">{item.sub}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Benefits */}
+      <section id="gc-benefits" className="py-20 md:py-28 px-6 md:px-12">
+        <div className="max-w-[1400px] mx-auto">
+          <div className="grid md:grid-cols-12 gap-10 mb-16">
+            <div className="md:col-span-6">
+              <div className="smallcaps text-[11px] text-[#6A8056] mb-6 flex items-center gap-3">
+                <span className="w-8 h-px bg-[#6A8056]"/>{tx('gc_ben_eyebrow')}
+              </div>
+              <h2 className="font-serif-display text-5xl md:text-6xl font-light leading-[1.05]">
+                {tx('gc_ben_t1')}<br/><em className="text-[#6A8056]">{tx('gc_ben_t2')}</em>
+              </h2>
+            </div>
+            <div className="md:col-span-5 md:col-start-8 self-end">
+              <p className="text-[16px] leading-relaxed text-[#1F2519]/70 font-light">{tx('gc_ben_body')}</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-[#1F2519]/10">
+            {benefits.map((b,i)=>{const Ic=b.Icon;return(
+              <div key={i} className="bg-[#F5F1E8] p-8 md:p-10 hover:bg-[#EFE8D6] transition-colors">
+                <Ic size={28} strokeWidth={1.2} className="text-[#6A8056] mb-6"/>
+                <h3 className="font-serif-display text-2xl mb-3 leading-tight">{b.t}</h3>
+                <p className="text-[14px] leading-[1.7] text-[#1F2519]/70 font-light">{b.b}</p>
+              </div>
+            );})}
+          </div>
+        </div>
+      </section>
+
+      {/* Science */}
+      <section className="py-20 md:py-28 px-6 md:px-12 bg-[#1F2519] text-[#F5F1E8]">
+        <div className="max-w-[1400px] mx-auto grid md:grid-cols-2 gap-16 items-center">
+          <div>
+            <div className="smallcaps text-[11px] text-[#D4DBC8] mb-6 flex items-center gap-3">
+              <span className="w-8 h-px bg-[#D4DBC8]"/>{tx('gc_sci_eyebrow')}
+            </div>
+            <h2 className="font-serif-display text-5xl md:text-6xl font-light leading-[1.05] mb-8">
+              {tx('gc_sci_t1')}<br/><em className="text-[#D4DBC8]">{tx('gc_sci_t2')}</em>
+            </h2>
+            <p className="text-[16px] leading-[1.8] text-[#F5F1E8]/80 font-light mb-8">{tx('gc_sci_body')}</p>
+            <div className="border border-[#F5F1E8]/20 p-5 smallcaps text-[10px] text-[#D4DBC8]">
+              {tx('gc_sci_after')}: GOT (AST) ↓ · GPT (ALT) ↓
+            </div>
+          </div>
+          <div className="space-y-6">
+            {['GOT (AST)','GPT (ALT)'].map((label,i)=>(
+              <div key={i} className="border border-[#F5F1E8]/15 p-6">
+                <div className="smallcaps text-[10px] text-[#D4DBC8] mb-4">{label} — {lang==='zh'?'显著降低':'Significantly Reduced'}</div>
+                <div className="flex items-end gap-6">
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="w-12 bg-[#F5F1E8]/20 rounded-sm" style={{height:'80px'}}/>
+                    <div className="smallcaps text-[9px] text-[#F5F1E8]/50">{tx('gc_sci_ga')}</div>
+                  </div>
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="w-12 bg-[#6A8056] rounded-sm" style={{height:'36px'}}/>
+                    <div className="smallcaps text-[9px] text-[#D4DBC8]">{tx('gc_sci_gb')}</div>
+                  </div>
+                  <div className="text-[#6A8056] text-3xl font-bold ml-4">↓ ~55%</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Six No's */}
+      <section className="py-20 md:py-28 px-6 md:px-12">
+        <div className="max-w-[1400px] mx-auto">
+          <div className="grid md:grid-cols-12 gap-10 mb-16">
+            <div className="md:col-span-6">
+              <div className="smallcaps text-[11px] text-[#6A8056] mb-6 flex items-center gap-3">
+                <span className="w-8 h-px bg-[#6A8056]"/>{tx('gc_six_eyebrow')}
+              </div>
+              <h2 className="font-serif-display text-5xl md:text-6xl font-light leading-[1.05]">
+                {tx('gc_six_t1')}<br/><em className="text-[#6A8056]">{tx('gc_six_t2')}</em>
+              </h2>
+            </div>
+            <div className="md:col-span-5 md:col-start-8 self-end">
+              <p className="text-[16px] text-[#1F2519]/70 font-light">{tx('gc_six_body')}</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            {sixNos.map(k=>(
+              <div key={k} className="bg-[#EFE8D6] p-6 text-center">
+                <I.Check size={24} className="text-[#6A8056] mx-auto mb-3" strokeWidth={2}/>
+                <div className="font-serif-display text-xl mb-1 text-[#1F2519]/40">✕</div>
+                <div className="smallcaps text-[10px]">{tx(k)}</div>
+              </div>
+            ))}
+          </div>
+          <div className="mt-6 text-center smallcaps text-[10px] text-[#1F2519]/50">
+            SGS · TÜV Rheinland {lang==='zh'?'第三方认证':'Third-party verified'}
+          </div>
+        </div>
+      </section>
+
+      {/* How to take */}
+      <section className="py-20 md:py-28 px-6 md:px-12 bg-[#EFE8D6]">
+        <div className="max-w-[1400px] mx-auto">
+          <div className="mb-16">
+            <div className="smallcaps text-[11px] text-[#6A8056] mb-6 flex items-center gap-3">
+              <span className="w-8 h-px bg-[#6A8056]"/>{tx('gc_how_eyebrow')}
+            </div>
+            <h2 className="font-serif-display text-5xl md:text-6xl font-light leading-[1.05]">
+              {tx('gc_how_t1')}<br/><em className="text-[#6A8056]">{tx('gc_how_t2')}</em>
+            </h2>
+          </div>
+          <div className="grid md:grid-cols-3 gap-8">
+            {howTo.map((item,i)=>{const Ic=item.Icon;return(
+              <div key={i} className="bg-[#F5F1E8] p-8">
+                <Ic size={28} strokeWidth={1.2} className="text-[#6A8056] mb-6"/>
+                <h3 className="font-serif-display text-2xl mb-3">{item.t}</h3>
+                <p className="text-[14px] leading-[1.7] text-[#1F2519]/70 font-light">{item.b}</p>
+              </div>
+            );})}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="py-20 md:py-28 px-6 md:px-12 bg-[#6A8056] text-[#F5F1E8]">
+        <div className="max-w-[900px] mx-auto text-center">
+          <h2 className="font-serif-display text-5xl md:text-7xl font-light leading-[1.05] mb-6">
+            {tx('gc_cta_t1')}<br/><em>{tx('gc_cta_t2')}</em>
+          </h2>
+          <p className="max-w-md mx-auto text-[16px] leading-relaxed text-[#F5F1E8]/85 font-light mb-10">{tx('gc_cta_body')}</p>
+          <a href="https://wa.me/60123456789" target="_blank" rel="noopener noreferrer"
+            className="inline-flex items-center gap-3 bg-[#F5F1E8] text-[#1F2519] px-10 py-5 smallcaps text-xs hover:bg-[#1F2519] hover:text-[#F5F1E8] transition-colors mb-4">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d={WA_PATH}/></svg>
+            {tx('gc_cta_btn')}
+          </a>
+          <div className="smallcaps text-[9px] text-[#F5F1E8]/60 mt-4">{tx('gc_cta_note')}</div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────
+// PAGE: CERTIFICATIONS
+// ─────────────────────────────────────────────
+function CertificationsPage({lang}) {
+  const tx = k=>t(k,lang);
+  const sixNos = ['six_1','six_2','six_3','six_4','six_5','six_6'];
+  const awards = lang==='zh'
+    ? ['傑出神農獎 Outstanding Shennong Award','傑出漁民獎 Outstanding Fisherman Award','臺灣精緻農業金牌獎 Taiwan Delicate Agriculture Gold Medal','臺灣金根獎 Taiwan Golden Root Award','黃金蜆生產履歷 Production Traceability Certified']
+    : ['Outstanding Shennong Award','Outstanding Fisherman Award','Taiwan Delicate Agriculture Gold Medal','Taiwan Golden Root Award','Golden Clam Production Traceability Certified'];
+  return (
+    <div>
+      {/* Header */}
+      <section className="py-20 md:py-28 px-6 md:px-12 bg-[#F5F1E8]">
+        <div className="max-w-[1400px] mx-auto">
+          <div className="smallcaps text-[11px] text-[#6A8056] mb-6 flex items-center gap-3">
+            <span className="w-8 h-px bg-[#6A8056]"/>{tx('cert_page_eyebrow')}
+          </div>
+          <h1 className="font-serif-display text-5xl md:text-7xl font-light leading-[1.05] mb-8 max-w-3xl">
+            {tx('cert_page_t1')}<br/><em className="text-[#6A8056]">{tx('cert_page_t2')}</em>
+          </h1>
+          <p className="max-w-2xl text-[17px] leading-[1.7] text-[#1F2519]/75 font-light">{tx('cert_page_body')}</p>
+        </div>
+      </section>
+
+      {/* 3 pillars */}
+      <section className="py-16 px-6 md:px-12 bg-[#EFE8D6]">
+        <div className="max-w-[1400px] mx-auto grid md:grid-cols-3 gap-px bg-[#1F2519]/10">
+          {[
+            {Icon:I.Shield,label:tx('cert_h_lbl'),n:'A00207',desc:tx('cert_h_desc')},
+            {Icon:I.Activity,label:tx('cert_s_lbl'),n:'GOT · GPT',desc:tx('cert_s_desc')},
+            {Icon:I.Award,label:tx('cert_t_lbl'),n:'SGS · TÜV',desc:tx('cert_t_desc')},
+          ].map((c,i)=>{const Ic=c.Icon;return(
+            <div key={i} className="bg-[#F5F1E8] p-8 md:p-10">
+              <div className="w-14 h-14 rounded-full bg-[#6A8056]/15 flex items-center justify-center mb-6">
+                <Ic size={28} strokeWidth={1.2} className="text-[#6A8056]"/>
+              </div>
+              <div className="smallcaps text-[10px] text-[#6A8056] mb-2">{c.label}</div>
+              <div className="font-serif-display text-3xl mb-4">{c.n}</div>
+              <p className="text-[14px] leading-[1.7] text-[#1F2519]/70 font-light">{c.desc}</p>
+            </div>
+          );})}
+        </div>
+      </section>
+
+      {/* Six No's */}
+      <section className="py-16 px-6 md:px-12">
+        <div className="max-w-[1400px] mx-auto">
+          <div className="text-center mb-12">
+            <div className="smallcaps text-[11px] text-[#6A8056] mb-4">{tx('cert_six_title')}</div>
+            <h2 className="font-serif-display text-4xl md:text-5xl font-light">{tx('gc_six_t1')}<br/><em className="text-[#6A8056]">{tx('gc_six_t2')}</em></h2>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+            {sixNos.map(k=>(
+              <div key={k} className="bg-[#EFE8D6] p-6 text-center">
+                <I.Check size={24} className="text-[#6A8056] mx-auto mb-3" strokeWidth={2}/>
+                <div className="smallcaps text-[10px]">{tx(k)}</div>
+              </div>
+            ))}
+          </div>
+          <div className="text-center smallcaps text-[10px] text-[#1F2519]/50">SGS · TÜV Rheinland {lang==='zh'?'第三方认证':'Third-party verified'}</div>
+        </div>
+      </section>
+
+      {/* 8-step production */}
+      <section className="py-16 px-6 md:px-12 bg-[#1F2519] text-[#F5F1E8]">
+        <div className="max-w-[1400px] mx-auto">
+          <div className="text-center mb-12">
+            <div className="smallcaps text-[11px] text-[#D4DBC8] mb-4">{tx('cert_steps_t')}</div>
+            <div className="font-serif-display text-3xl md:text-4xl font-light">{tx('cert_steps')}</div>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
+            {(lang==='zh'?['养殖','采收','萃取','检验','急冻','复检','制锭','包装']:['Farming','Harvest','Extraction','Inspection','Quick-Freeze','Re-inspection','Tablet','Packaging']).map((step,i)=>(
+              <div key={i} className="border border-[#F5F1E8]/15 p-4 text-center">
+                <div className="font-serif-display text-2xl text-[#D4DBC8] mb-2">{i+1}</div>
+                <div className="smallcaps text-[10px] text-[#F5F1E8]/80">{step}</div>
+              </div>
+            ))}
+          </div>
+          <div className="mt-8 flex flex-wrap justify-center gap-6 smallcaps text-[10px] text-[#D4DBC8]/80">
+            <span>HACCP</span><span>ISO 9001:2000</span><span>HALAL</span>
+          </div>
+        </div>
+      </section>
+
+      {/* Awards */}
+      <section className="py-16 px-6 md:px-12">
+        <div className="max-w-[1400px] mx-auto">
+          <div className="mb-12">
+            <div className="smallcaps text-[11px] text-[#6A8056] mb-6 flex items-center gap-3">
+              <span className="w-8 h-px bg-[#6A8056]"/>{tx('awards_eyebrow')}
+            </div>
+            <h2 className="font-serif-display text-5xl md:text-6xl font-light leading-[1.05]">
+              {tx('awards_t1')}<br/><em className="text-[#6A8056]">{tx('awards_t2')}</em>
+            </h2>
+          </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {awards.map((a,i)=>(
+              <div key={i} className="border border-[#1F2519]/15 p-6 flex items-start gap-4">
+                <I.Award size={24} className="text-[#6A8056] shrink-0 mt-1"/>
+                <span className="text-sm leading-relaxed text-[#1F2519]/80 font-light">{a}</span>
+              </div>
+            ))}
+          </div>
+          <div className="mt-8 p-6 bg-[#EFE8D6] text-center">
+            <div className="smallcaps text-[10px] text-[#6A8056] mb-2">{lang==='zh'?'研究背书':'Research Backing'}</div>
+            <div className="font-serif-display text-2xl md:text-3xl">{lang==='zh'?'五大政府机构与学术界，连续二十多年不间断研究':'5 Government Bodies + Academia · 20+ Years Uninterrupted Research'}</div>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────
+// PAGE: TESTIMONIALS
+// ─────────────────────────────────────────────
+function TestimonialsPage({lang}) {
+  const tx = k=>t(k,lang);
+  const [expanded, setExpanded] = React.useState(null);
+
+  const testimonialsEn = [
+    {img:'testi_1570784505.jpg',name:'Hoo Kok Shin',age:'49',location:'Negeri Sembilan',problem:'Hepatitis B Carrier',before:'I had high levels of liver index which will lead to Cirrhosis and Liver Cancer. I had  tried many supplement before but no improvement was found. Sigacik guide',after:'After get know of Golden Clam, I started to consume 3 tablets at morning and night. After 3 months,  My liver index unexpectedly decreased significantly :  AST –  From 127 to 52;  ALT  - From 259 to 87;  GGT – From 82 to 39;   And my insomnia also improved after taking Golden Clam!'},
+    {img:'testi_1467168291.jpg',name:'Tan Meng Suan',age:'55',location:'Kedah',problem:'Systemic Lupus Erythematosus',before:'I had been suffering from SLE for more than 10 years and always faced the breathing difficulties, heart problem and weakness on my legs. I also cannot sleep at the night. Except medicine given by Doctor, I also taken Propolis and Colostrum, but no improvement was found.',after:'I started consumed 3 tablets of Golden Clam at morning, afternoon and night and 3-4 times Springlife per day. Sometimes, I will increased the dosage to 12 tablets per day in order to reduced my pain. After few months, my health condition had been improved and I reduces the dosage of medicine. Six months later, I completely no need to eat the medicine any more as refer to my health report, the SLE index had back to normal.'},
+    {img:'testi_1467164310.jpg',name:'Ling Heng Chiong',age:'50',location:'Sarawak',problem:'High Blood Sugar, High Blood Pressure, High Cholesterol and Uric Acid',before:'I had been suffering from uric acid, high blood sugar , high cholesterol and high blood pressure for 25 years. Before this, once I ate mutton, I am unable to walk on the next day due to the terrible joints pain and swelling of the legs.',after:'I started to take 3 tablets of Golden Clam at each morning and night and also press 10 times of Springlife into my drinking water. Now  Uric Acid had been 100% recovered and Cholesterol index also decreased from 7+ to 4+ , back to normal level. My skin complexion also improved a lot!'},
+    {img:'testi_1453862444.jpg',name:'Tan Cho Huang',age:'63',location:'Sarawak',problem:'Hormone Problem',before:'4 years ago, I was diagnosed hormone problem and started to consume hormone drugs. I asked doctor, how long should I consume the hormone drugs? Doctor said, 5-6 years, even longer. I knew this is not the way to go. In a coincidence, I attended Golden Clam dinner and get to know this product. I brought back all the relevant information  to study. The next month, I attended again the Golden Clam dinner and all my doubts were lifted. From that time, I start to consume Golden Clam in the morning 3 tablets and night 3 tablets until now.  After doctor’s permission and finally, I could stop taking the hormone drugs.',after:'My joint pain for over a decade. Squatted is the most fear action because once squatted down, it was difficult to stand up. I did not dare to do surgery as no more young. After that, I start to consume Spring Life and Cal Plus. The water that I drink every time will content Spring Life. While Cal Plus I take 2 sachets after lunch. Unconsciously one day, while I was playing with my grandson, I can squat and stand up easily . I am so happy. I am here to urge everyone, be patient when consume supplements as it takes time.'},
+    {img:'testi_1453864718.jpg',name:'Nevan Toh',age:'3',location:'Sarawak',problem:'Sensitive Skin',before:'Nevan Toh (represented by mother,  Stephy Chua) My son has skin sensitive problem. After applied the cream given by doctor, still itchy. He will get itchier while scratching.',after:'After that, I applied Spring Life on his itchy place. Only 1 week, swelling and itching disappear. It is too happy.'},
+    {img:'testi_1453256325.JPG',name:'Sia Yik Tong',age:'58',location:'Sarawak',problem:'High Uric Acid',before:'My uric acid was very high because I am a heavy drinker. Every year, I have to go to hospital to do injection to stabilise my uric acid level .',after:'Since year 2012, I get to know that Golden Clam can protect my liver while I am drinking, I start to consume it every morning and night with 3 tablets each. Surprisingly, my uric acid is being controlled and I no need to go to hospital to do injection. Another problem that has been solved is my gastric problem since I was young . Sometimes when gastric acid was attacked at night, I could not sleep and suffered from insomnia. To my surprise when I was recovering gastritis with Golden Clam. I am now living happily with a healthy lifestyle.'},
+    {img:'testi_1467081261.jpg',name:'Sia Ham Ping',age:'86',location:'Sarawak',problem:'Stomach Cancer',before:'I was a cancer patient. Year 2004, I got stomach cancer and recovered. Early of year 2015, I found that I was always caught on fever and cool, so I went for checking. Unfortunately, my CEA reading was 31mg/L where normal range is 0-2.5mg/L.  After went for CT scan and so on, I was diagnosed colon cancer .',after:'Operation done and at the same time, I consume 10 tablets of Golden Clam on day and night each together with 1 bottles of Spring Life for 4 days. Surprisingly, my recovery rate is very fast and after 1 month of operation, I can exercise as usual. When I went for follow up, my CEA reading was 17mg/L which was high too. Unfortunately, my liver affected &amp; diagnosed as liver cancer. Operation done and my recovery rate also very fast  Now I am happy that I am still alive, and I am now 86 year old.'},
+    {img:'testi_1444891846.jpg',name:'Chan Foh Chin',age:'69',location:'Negeri Sembilan',problem:'Accidental injury , age spots and wrinkles',before:'I Started to take 3 tablets of Golden Clam at morning and night. I also drop Springlife into my drinking water every day after my son introduced these good products to me as it can help to improve my health.',after:'One day , I was hit by a car when crossing the road and cause bruising on my head. After medical checking, doctor said it will be recovered after few days and will not affected my body. But I felt terrible headache at the night time. My grandson advised me to take a lot of springlife as it can helps the blood circulation. The next morning, when I woke up, no more headache and the bruising is gone. I was so surprised ! Until now, I still consume both of the products and my age spots and wrinkles are significantly reduced a lot.'},
+    {img:'testi_1467683221.jpg',name:'Stephy Chua',age:'36',location:'Sarawak',problem:'Asthma ( her son )',before:'My son was suffered from Bronchial sensitive since he was at 1 to 3 years old and he always went to the clinic nebulizer treatment. Besides, he also took a lot of antibiotic and this had caused his health getting worse and got asthma at the end',after:'After trying Greeno product, his asthma had been recovered and he also seldom fall sick after that.'},
+    {img:'testi_1417773258.jpg',name:'Lai Piak Kim',age:'55',location:'Sarawak',problem:'End-stage Nose Cancer',before:'In 2011, I was diagnosed suffering from end-stage nose cancer after the sudden numbness of the half side of my face, sore gums as well as the head. Cancer  spread to the lungs and the right eye. I have just completed 5 weeks of chemotherapy and radiotherapy despite the treatments required for 7 weeks. This is because my body is too weak to continue, the doctor declared that I’m running out of time and advised me to go home. I can only lie in bed and can\'t turn around. My back began to fester.',after:'I started to consume 3 tablets of Golden Clam® at each morning, afternoon and night. I also drink a lot of Springlife® daily after known about these products through my family member. In addition  , I also spray a large amount of Springlife® into the wound on my back. A month later, the wound on my back was completely healed and I manage to walk around with helping hands. Two months later, I can even move around freely. Now, the cancer cells have also been completely eliminated. Doctor declares that this is a miracle!'},
+    {img:'testi_1445567536.jpg',name:'Lee Chee Seng',age:'54',location:'Negeri Sembilan',problem:'Diebetes',before:'I have been suffering from diabetes for many years , my blood sugar have surged to 17.1mmol/L before. I felt fatigued when drive long-distance and need stop frequently to take a rest!',after:'I started to consume 3 tablets of Golden Clam before bedtime on November 2014 after introduced by my sister. My blood sugar reading at that time is 12.2mmol/L. After few months, I felt energetic all day long when drive long-distance. Besides this, my appetite also improved a lot. My blood sugar index also decreased to 7.1mmol/L on the medical check-up on Feb 2015. Within this period,  I still drink coffee everyday and eat some sweet food. I am very happy with this results.'},
+    {img:'testi_1445567575.jpg',name:'Lee Chwee Peng',age:'47',location:'Negeri Sembilan',problem:'Drug Allergy &amp; Gastric',before:'I used to drug allergy since I was young. When I took painkiller, it will caused eye swelling and normally took few days to fully recovered.',after:'My drug allergy problem had been solved  after I consumed Golden Clam and Springlife on Feb 2014. In addition, I am also sensitive to alcohol and my body will developed rashes after I drank. But this problem doesn’t occurred anymore if I took 3 tablets Golden Clam before drink any wine. Besides, my gastric problem also solved after I took Golden Clam and springlife.'},
+    {img:'testi_1445567667.jpg',name:'Cheng Ee Ping',age:'23',location:'Negeri Sembilan',problem:'Freckle',before:'I had Freckle on my face since I was young. The freckle had became more darker after too much exposure to the sun . I had tried many skin care  products before but no improvement was seen.',after:'I squeeze 4 times of Springlife into drinking water and drink every morning and before bedtime. I  also squeeze 6-8 times into 1.5 liter water. The condition of freckle ,spots and skin complexion had been improved in just one month. Besides drinking, I also spray Springlife ( 10% ) mix with water ( 90% ) onto my face for moisturizing, lifting and sunblock purpose. It is also good for anti-bacterial purpose.'},
+    {img:'testi_1445567623.jpg',name:'Yau Kwee Yin',age:'70',location:'Negeri Sembilan',problem:'kidney shrinkage',before:'I am facing some cervical cancer radiotherapy side effects such as inflammation of the urethra and blood clots in urine. My health conditions also affected after too much medication. My kidney shrinkage problem was discovered on May 2014 and dialysis treatment was advised by thedoctor.',after:'I was scared and refused to start any dialysis treatment. I started to consume 2 tablets of Golden Clam before bedtime and drink a lot of Springlife. I had diarrhea in the first few days and it was last for few days time . After 3 months, I was very surprised that my kidneys functions had been improved 80% and no need any dialysis treatment.'},
+    {img:'testi_1467623773.jpg',name:'Chan Pau Keong',age:'49',location:'Negeri Sembilan',problem:'High Blood Sugar &amp; Inflammatory bowel',before:'I was suffered from high  blood sugar problem (6.4 mmol / L).',after:'I start to consume 3 tablets of Golden Clam before bedtime and squeeze 3-4 times Springlife into my drinking water everyday. After 1 week, I had stomachache and I just ignore it because I though was food poisoning. After few weeks, my stomachache getting serious and fever. After body check-up, Doctor found out there were some small holes and inflammation near my intestinal.  During hospitalization, I took a lot of Golden Clam and Springlife. After 3 days, I had recovered from  My Inflammatory bowel disease  and the  glycemic index also dropped to 4.9mmol/L.'},
+    {img:'testi_1444891727.jpg',name:'Ho Oi Ching',age:'49',location:'Sabah',problem:'Cough and Back Pain',before:'I always face the cough and back pain problem before consumed Golden Clam',after:'After my friend introduced Golden Clam to me, i started to consume 2-3 tablets at every morning. After a month, my cough and back pain problem had been improved a lot , and my skin complexion as well. My vision also improved.'},
+    {img:'testi_1444881145.jpg',name:'Rachel Lim',age:'37',location:'Sabah',problem:'High Blood Sugar',before:'My Blood Sugar index is around 9-11mmol/L, I started to control my diet but still no improvement was found.',after:'In 20/1/2013, after attended the Health Talk at Hotel Aifa Labuan, I decided to consume Golden Clam. 5 – 10 tablets per day. After few days, I do the blood sugar test by myself, i found out the index was reduced to normal level.'},
+    {img:'testi_1326164132.jpg',name:'Latifah binti Abdullah',age:'59',location:'Penang',problem:'Diabetes, blur eyesight',before:'I am suffering the diabetes for almost 16 years. My condition was getting serious since six years ago. There is a hole as big as a 50 cents coin at my sole of foot, my eyesight was blurred as well. I admitted to hospital frequently due to my blood sugar was high , even more than 22mmol/L. Recently, my leg was diagnosed by a doctor in order to cut off due to the serious condition.',after:'On October 2009, my child recommended GREENO® Golden Clam®for me. I took three tablets of GREENO® Golden Clam® every day. Now, my foot wound is slowly recovered, the hole at my sole of foot became smaller than before. The pus at my foot became dry too. Doctor also verified that my foot was recovering almost 80% and no need to cut off again. After taken GREENO® Golden Clam®, I become healthier, full of energy; my eyesight was  improved too and good  in appetite right now.'},
+    {img:'testi_1420263650.jpg',name:'Thio Hang Nei',age:'36',location:'Johor',problem:'menstrual &amp; stomach problem',before:'I am facing menstrual problem for a long time  ago. Every period time, I was suffering the pain until lying on my bed only. On the year 2006, there is another criterion for my health. When I was at the place where is crowded of peoples like company or mall, I will feel difficulty in breathing. Someday, I was stunt in factory and sent to hospital. After diagnosis of doctor, it was claimed that I was Panic Attack. As a result, I’ve changed to traditional Chinese medication, and the physician verified that I was suffering the Globus problem, it was caused by flatulence.',after:'On year 2007, my friend introduced GREENO® Golden Clam® to me. At the first 3 months of consumption, it appeared menstrual irregularity symptoms, the period blood change from dark red color to light and my menstrual pain is gradually reduced. By the way, I’ve learned a lot of our liver knowledge from the GREENO® Health Talk. I also realized that the Globus problem was caused by my 10 years of night working shift. Hence, from the day I start to protect my liver with GREENO® Golden Clam®, my Globus problem was fully recovered! Yet, I’m still taking   GREENO® Golden Clam® as my health care step. Now, no more menstrual pain and Globus problem for me  and my life become more colorful and healthy!'},
+    {img:'testi_1326163802.JPG',name:'Jaafar Hj. Jakaria',age:'56',location:'Sabah',problem:'Insomnia, gastric, ulser, high LDL cholesterol and stabbing pain at foot sole',before:'I have the difficulty  in sleeping for every night. Meanwhile, I always felt my stomach was flatulent and very uncomfortable after meal. Besides that, my gastric and stomachache almost woke me up every night. However, I have difficulty to fall asleep again after awake and I will feel like insufficient on sleep and tired in the next morning. In addition to this, I was facing ulser problem in mouth for almost every month. My Low Density Lipoprotein (LDL) cholesterol was high, and felt stabbing pain at my foot sole.',after:'After taken GREENO® Golden Clam® for almost two months, my problems in insomnia, stomach uncomfortable, tired and stabbing pain at my sole of foot was relieved. I can fell asleep easily, and full of  energy in the next morning. At the same time, my LDL cholesterol was reduced too! Thanks to the GREENO® Golden Clam®!'},
+    {img:'testi_1326163731.jpg',name:'Puan Hajjah Dayang Binti Benson',age:'52',location:'Sabah',problem:'Anaemia, menstrual problem  and itchy',before:'I am facing the red blood cell problems (Anaemia), therefore I need to do a blood test for every 3 months. Besides that, I always have the stabbing pain problems, paralysis situation and insomnia problems. At the same time, I am facing irregular menstruation problems too! In addition, itching and rash problems also troubling my daily activity !',after:'Alhamdulillah, all of my illness especially the anaemia which torturing me since I was young is relieved after i took GREENO® Golden Clam®. By the way, my menstruation became regular after I used GREENO® Herbal Plus Sanitary Pad! I can enjoy my life and do all my daily activities with confident now.'},
+    {img:'testi_1326163687.jpg',name:'Hajjah Sarkiah Hj. Zakaria',age:'62',location:'Sabah',problem:'Rheumatic, palpitation',before:'I always face the rheumatic problems, especially when I’m praying. Sometimes, i felt palpitations without any reasons, and it caused me difficultly in breathing . Therefore, i went to do a heart check up, but doctor diagnosed that i didn’t have any heart disease.',after:'I was introduced GREENO® Golden Clam® by my affinity. I took 3 tablets of that on every morning and night for the first 10 days. In the first week, I felt painful in my joint and difficulty in breathing. Anyway, I am still persisting to take GREENO® Golden Clam®. Before I finished a box of   GREENO® Golden Clam®, my rheumatic and breathing’s problems was recovered. Now, I could complete my praying without any suffer again!  Thanks to GREENO® Golden Clam®!'},
+    {img:'testi_1326111621.jpg',name:'Masne Mokiun',age:'41',location:'Sabah',problem:'Womb cancer, serious acnes problem',before:'On year 2009, I found out that I’ve suffered womb cancer and there is frequent pain in my stomach and womb. At the same time, my whole face also full of pimples with pus. I started to find any remedy for my illness. At that time, Puan Dayang who came from Kota Kinabalu introduced the GREENO® Golden Clam® and GREENO® Herbal Plus Sanitary Pad to me.',after:'I started to intake GREENO® Golden Clam® and using GREENO® Herbal Plus Sanitary Pad on the early month of October. In the first month, I had seen the positive effects on my body and no more painful in my stomach and womb again. Now, I had consumed GREENO® Golden Clam® and GREENO® Herbal Plus Sanitary Pad for around two months and my acnes problem on my face also recovered fully.  After witnessed the efficiency of GREENO® Golden Clam® and GREENO® Herbal Plus Sanitary Pad, I made the decision to join the GREENO® business seriously so that to help those are needed. Besides this, I also achieve the  Diamond Manager status on last November.  Thanks to GREENO®!'},
+    {img:'testi_1326109872.JPG',name:'Goh Chai Lai',age:'44',location:'Johor',problem:'Cirrhosis, Hepatitis C',before:'I was a drug addict in year 1990 until year 2004. I found out that I had suffered from Hepatitis C and cirrhosis when I went for a medical check-up in year 2008. At that time, doctor told me that there is no medicine can cure the disease and therefore the doctor didn’t give me any medicine. Before that, my face and skin looked pale; lips were in darker colour and have a serious dark circle on my eyes. I looked weak and thin, have no appetite, no energy, felt sleepy and tired every day.',after:'On 9th September 2009, my friend introduced GREENO® Golden Clam® to me. At first 5 days of consumption, I still felt sleepy, but I felt energetic and fresh after wake up. After 5 days, my spirit getting better and better. One month later, my face and lips looked ruddy, my appetite became better and my weight was increasing. Now, I can go for work with full of energy everyday.'},
+    {img:'testi_1467082593.jpg',name:'Rebecca Liew',age:'36',location:'Sarawak',problem:'Poor Immune System and Hypoxia',before:'Since July 2013 I met Bio Greeno, I start to use Spring Life, Golden Clam, HEQ and Cal Plus until now. Since young, I got poor immune system and hypoxia. The worst case would make me faint. I love travel but I got a bad sleeping quality, even insomnia and also poor immune system, so I need to bring a lot of drugs among my journey.',after:'Since I consume all range of products, my immune system has been increased and I got better sleeping quality. Every day, I take 3 tablets of Golden Clam in the morning and night, after lunch will take 2 sachets of Cal Plus and Spring Life will with me anytime. I bring HEQ along my travel journey, never miss out. Now I am feeling good with my health.'},
+    {img:'testi_1467358920.jpg',name:'Yong Chan Siew',age:'39',location:'Sarawak',problem:'Insomnia,fatigue, Sensitive Nose',before:'I had suffered from insomnia for more than 10  years. This had caused me easily to get angry and always felt tired. Besides, I had sensitive nose problem too.',after:'I could felt the effectiveness only with 4 tablets of Golden Clam. I consumed 2 tablets after meal and I could fall sleep after 4 days. While after another 2 weeks, my sensitive nose problem had been solved  as well as my chest pain. During taking Golden Clam, I had some healing reactions such as terrible back pain, gastric and swelling eye which make my confidence gone. But after got the advise from the upline,  I decided to continue it. I had back to normal life now.'},
+    {img:'testi_1467681990.JPG',name:'Majnah Binti Abdillah',age:'40',location:'Sabah',problem:'Irregular heartbeat, backbone ache, migraine',before:'I faced a heart’s valves problem. Although I had go through an operation to expand my heart’s valves and don’t need to take any medicine again, but sometime I still will face the irregular heartbeat problem, especially when i’m tiring of works and when the time that I felt stress. I will feel pain at my back side when I wake up in every morning. Besides this, I suffered the migrain problem from times to times too and normally it will continue to the second day. As a result, I forced to take Panadol or others pills to relieve my pain.',after:'After I took GREENO® Golden Clam®, my irregular heartbeat problem didn’t appear again although I am tired of works. Meanwhile, my backbone ache problem was solved as well! Now, when my migrain problem is relapsed, I used to smell the GREENO® “peppermint fresh” and my migrain problem will just relieve within 10 to 15 minutes.'},
+    {img:'testi_1326111679.JPG',name:'Lee Foong Choon',age:'72',location:'Pahang',problem:'Diabetes, stroke, high blood pressure, asthma, kidney disfunction',before:'Before I consume GREENO® Golden Clam®, whatever of disease names that we can mention also can found from my body! I am suffering the diabetes, high blood pressure and asthma since long time ago. My blood sugar even reached to &gt;25 mmol/ L and thus I need to inject insulin as much as 38 for every morning and night. Due to diabetes, my eyesight also getting blur and blur. For my blood pressure, it also reached until &gt;220 mm Hg/ 100 mm Hg and it is considered as danger level. Meanwhile, my asthma problem also forces me to enter the ICU at least twice for every week. I totally cannot touch of water, if not, my asthma problem will attack me again. At the same time, my movement was inconvenient too, walk a few of steps already made me suffering the asthma again. In September of 2004, I had suffered stroke, it is always numb on my hands and legs while my legs are suffering the eczema too. Besides this, doctor also verified that one of my kidneys needs to go through kidney dialysis!',after:'In October of 2009, I started to consume GREENO® Golden Clam®  and N5 from N series, the dosage is 3 tablets and 1 tablet each for every morning and night. Now, my conditions are improved! My blood sugar is reducing from &gt;25 mmol/ L to 9 mmol/ L while the dosage of insulin injection also decreased to 14 only, and do not need to inject daily. My blood pressure decreases until 160 mm Hg/ 67 mm Hg too. At the same time, my most serious asthma problem also getting better and does not attack me again, no more asthma spray is required. Besides this, the leg eczema problem and my movement also are improved. Doctor also verified that my previous kidney which needed to go through the kidney dialysis also is recovered and still can function for at least two more years. Due to long period of visiting the hospital, therefore I have quite an amount of ward mates. And those will keep asking me what I had eaten during I revisit back the hospital as my look is getting better and healthy since I started to consume GREENO® Golden Clam® and N5. Because of GREENO® Golden Clam®  and N5, my health only  can re-occur hope again! Thanks to GREENO® !'},
+    {img:'testi_1326109757.JPG',name:'Sim Ming Kai',age:'10',location:'Johor',problem:'Eyes allergy, weak immunity',before:'Since Ming Kai was two years old, he was suffering the eyes allergy. His eyes will become red and swollen when he exposures to the polluted environment. Ming Kai was thin and he always fall sick too like suffers the fever, flu, cough, and sometime even suffers the asthma problem. Besides that, Ming Kai’s mother also has been complained by his kindergarten teacher as he always vomits in the classroom.',after:'In year 2007, Ming Kai’s aunty recommended GREENO® Golden Clam® to him. After taken GREENO® Golden Clam®, Ming Kai was fever, cough and spit out a lot of phlegm. It is a good sign showed that all the virus and bacteria were killed by the body’s immune system. After one week, all the symptoms were stopped. His appetite became good, body became stronger, immune system was increased and  not easily falls sick again. Finally, his eyes allergy was cured.'},
+    {img:'testi_1467081443.jpg',name:'Tang Kok Loo@ Tang Ah Bah',age:'68',location:'Malacca',problem:'Tinnitus, prostate problem',before:'Before I took GREENO® Golden Clam®, I always have the tinnitus &amp; prostate problem (difficulty in urination). I am facing such problems for about one year time. Besides that, every time when I took the food by using chopstick , my left hand always keeps shaking seriously. My child said I was suffered Parkinson disease and they asked me to see a doctor. However, I had come across of plenty health magazines and including the  magazine, and it is found out that Parkinson disease has no medicine to cure, and maybe it needs an expensive medical fee. The information from such magazines are advised us to stay happily and do more exercise instead of medication. On 26th August 2009, I saw some successful GREENO®Golden Clam® testimonials have posted in  and I found out that GREENO®Golden Clam® even can cure the Parkinson disease. Therefore, I went to GREENO® center which is located at Puchong to search for some information regarding the GREENO® Golden Clam®. After the explanation from the expert, I found out the efficacy of GREENO® Golden Clam® to our body and finally I decided to buy two boxes of GREENO® Golden Clam® for trying.',after:'I took two tablets of GREENO®Golden Clam® in the morning and three tablets of GREENO® Golden Clam® before sleep in the first week. However, for the first two and three days, I felt my whole body was hot, headache and felt like splitting. But, I insisted to take the GREENO™ Golden Clam®! After two to three days later, I have no headache, and my body was not hot anymore! Starting from 2nd week, I have reduced the dosage on GREENO® Golden Clam®. I took one tablet of GREENO® Golden Clam® in the morning and two tablets of GREENO® Golden Clam® before sleep. In the third week, I even just took two tablets of GREENO® Golden Clam® only at night! For my tinnitus problem and my shaking hand, the symptoms were reducing after the first week of taking GREENO® Golden Clam®! In the third week, my shaking hand was cured completely! Now, I feel easy to urinate too! After witnessed the efficacy of GREENO® Golden Clam®, I started to recommend the products to my relatives and friends and I will keep going to take the GREENO® Golden Clam®!'},
+    {img:'testi_1416911583.jpg',name:'Abdul Hisham Bin Saad',age:'38',location:'Butterworth',problem:'Diabetes &amp; Swollen Feet',before:'I have suffered from serious diabetes that caused my right foot swollen. Because of that, I have difficulty in walking and unable to stand for long. In addition to this, my foot felt numbness regularly.',after:'I consume 15ml of Springlife™ daily for 10 consecutive days. Due to the reaction of recovery, I feel dizzy, body itching, fatigue and insomnia for the first 3 days. But then, the numbness of my foot improved. After that, I started to consume 3 tablets of Golden Clam® daily in the morning and night. In just five days, the swelling part of my foot began to outflow dirty and smelly blood. Now, the inflamed part of my foot began to shrink and heal slowly.'},
+    {img:'testi_1417773164.jpg',name:'Muhd. Afif Farhan',age:'4',location:'Kedah',problem:'Unable to walk and stand for long and often get fevers',before:'Since young, Afif have difficulty in walking and standing. This is due to the physical tibia and his feet were smaller than normal. He also often got fevers and looks pale just like anemia.',after:'After taking Golden Clam® and Springlife™ for 2 weeks, the skin shows redness, his feet and tibia seem to grow and plump. He started to get up and show the spirit of diligent to walk. Finally, he was able to walk on his own, even smiles appear on his face again.'},
+    {img:'testi_1417773488.jpg',name:'Nuraisyah Fatihah Bt. Baharuddin',age:'19',location:'Kedah',problem:'Thalassemia',before:'I was diagnosed with Thalassemia since childhood. Because of this, I often feel less energetic and sleepy. In addition, the need of blood transfusions (2 packets) every month makes me miserable!',after:'After a month consumed Golden Clam &amp; Springlife, I felt more energetic. After second month, I only need to do blood transfusions once a month to replenish my red blood cell supply. After the eight months,  the number of blood transfusions has also been reduced  to every two months.'},
+    {img:'testi_1417773999.jpg',name:'Thum Siew Sin',age:'82',location:'Johor',problem:'Stroke',before:'In April 2012, I suddenly fainted and was sent to the clinic for a checkup. The doctor said my blood pressure is too high (over 180) and gave me some medicine. After returning home, I seem to suffer from dementia and was unable to walk. My daughter let me consume Golden Clam® and Springlife™, I recovery of consciousness on the next day.  After that, another daughter of mine took me to the hospital for further examination. According to the doctor, I had a stroke on my left side and was admitted to the hospital for 2 days. After being discharged from the hospital, I had to take medication to lower my blood pressure and was advised to go back to the hospital for Physiotherapy on a regular basis.',after:'My family took me for acupuncture treatment. In addition, I consume 4 tablets of Golden Clam®, 2 tablets of Cal Plus and Springlife™ daily. After a week, my legs can be lifted and I was able to walk with crutches. After 3 months, I can move freely and travel to Genting Highlands with my family. Thank you Greeno® for restoring my health.'},
+    {img:'testi_1417774213.jpg',name:'Hajah Radziah Zakaria',age:'59',location:'Kedah',problem:'Diabetes, High Blood Pressure, fingers numbness',before:'I had suffered from Diabetes for more than 10 years and must inject insulin to control my blood sugar levels. My fingers often felt numbness and stiffness causes I could not fall asleep. Besides that, I’m facing problem of getting up if sitting on the floor, my right thigh and tibia often felt painful and less of energy. Furthermore, my heart is beating fast make me feel uneasy.',after:'After finished 2 bottles of Springlife® in 4 days, there is some improvement in my fingers numbness. One month after I consumed Golden Clam® and Springlife®, I managed to control my blood sugar level without injection of insulin. In addition, my heart beats has back to normal. Now I can sleep better at night. Thanks GREENO®!'},
+    {img:'testi_1417774413.jpg',name:'Lim Yoke Theng',age:'32',location:'Johor',problem:'Thyroid and Infertility',before:'In 2008, I was diagnosed with thyroid when the inexplicable trembling hands, swollen and redness feet appeared on me. Since then, I was required to consume 10 tablets of medication every day. After taking the medication, I groggy all day in bed, not dining and even sent to the hospital for allergy testing due to I’m allergic to the medication.   After being discharged from the hospital, my medication increased to 11 tablets a day. Although thyroid index has decreased, my face was covered with acne, looks gaunt, feel dizziness every day, unable to work and whatever I eat are bitter! I almost get neurosis because of this and often crying in the middle of the night. In order to alleviate the pain, I began to seek traditional treatment and taking other health care products, but the results are disappointing. Due to unbearable pain of the private part of my body and bloated looks, Chinese Physician once suspected that I had cervical cancer. In recent years, I can not get pregnant even though I did not contraception, I can not wait to have another baby. After the traditional treatment, I\'m pregnant in July 2010 but suffered a miscarriage in September 2010. According to the doctor, the probability of miscarriage is high if I get pregnant again.',after:'In December 2010, I began to consume 4 tablets of Golden Clam® each morning and night daily when Poh Yin - Greeno® Blue Diamond Director introduced the product to me. It is beyond my expectations! I can see the effectiveness in just a month. When I go for a follow-up check-up, the report indicated that my thyroid index has resumed to normal. At the same time, I was pregnant again! This time, I managed to keep my unborn child and he was born safely due to the consumption of Golden Clam®. Now, my son is already nine months old and he is a healthy and lovely baby. In addition, there is a great improvement in my health condition!'},
+    {img:'testi_1417774506.jpg',name:'Nayef Bin Jamaluddin (5 months)',age:'0',location:'Perlis',problem:'Asthma',before:'Nayef was diagnosed with asthma among infants at his age of 3 months. Since then, his parents had been bringing him to the clinic constantly for nebulizer treatment. Although 8 treatments have been done, there is no improvement in his condition.',after:'On 17/05/2012, his father overheard the radio program about products of Greeno®. So, they rushed to the Holiday Villa Hotel and met Dr. Zulkifli. He has suggested Nayef to consume 30 drops of Springlife™ daily. As Nayef is still breast-feeding, Dr.Zulkifli also suggested that his mother consume 2 tablets of Golden Clam® daily. Thank God! A week later, there are major changes in Nayef condition as he no longer cough, phlegmatic and flu. In addition, he can sleep through the night. Now, his weight had increased to 8.5kg at the age of 5 months compared to 4.3kg before consuming products of Greeno®. On 29/05/2012, his parents have brought Nayef for monthly check-up and the doctor on duty declared that Nayef has no longer suffered from asthma.'},
+    {img:'testi_1421052228.jpg',name:'Salleh Bin Ali',age:'53',location:'Sabah',problem:'Gout, Diabetes,  High Blood Pressure &amp; Gastric',before:'I was suffered from gout and diabetes for more than 10 years. Besides that, I also had high blood pressure which reached &gt; 200mm/Hg. I was hospitalized due to these health problems. After that, I was unable to walk for around 3 months. In the mean time, I need to take medication for gout, diabetes, high blood pressure and gastric.',after:'When I was hospitalized, my friend introduced the GREENO® Golden Clam® to me. I started to take 3 tablets of GREENO® Golden Clam® at each morning and night. After 10 boxes of consumption, I am able to walk and my blood pressure also dropped to 130mm/Hg and 75mm/Hg, my blood sugar index also dropped from 18mmol/L to 5.4mmol/L.'},
+    {img:'testi_1467612241.jpg',name:'Sim Lily',age:'41',location:'Johor',problem:'Stroke, Hypertension, Diabetes, Numbness on Legs &amp; hands',before:'I had suffered from pregnancy hypertension and diabetes since10 years ago. I need to rely on traditional herbs to control these disease. Unfortunately, In May 2008 I was getting stroke due to high blood. It caused me become partial paralysis , mouth crooked and unable to speak and move my hands and feet. I only can lying on the bed all day long.',after:'I started to consume Golden Clam and N5 after someone introduced these products to my husband, my three fingers can move after 2 days. 10 days after, My bone nerves and mouth crooked problem getting better and I can spoke finally. After 2 months, my hands and feet can be moved and fully recovered after 3 months'},
+    {img:'testi_1421052293.jpg',name:'Lee Kin Chong',age:'37',location:'Johor',problem:'Carrier of hepatitis B',before:'I was diagnosed as carrier of Hepatitis B during blood donation since 10 years ago.',after:'I started to consume GREENO® Golden Clam® after introduced by my friend on May 2008. At May 2010, my body check up showed that the Hepatitis B virus had been removed. My wife and I were so happy with the result. On the other hand, at early of 2009, my wife was pregnant with third child, she take a lot of GREENO® Golden Clam® during her pregnancy, when my son was born, we found that he got very thick and black hair. (  my elder and second son only had little hair when they were born. )My third son also seldom fall in sick within a year even after vaccination. Thanks GREENO® Golden Clam® for such excellent product!'},
+    {img:'testi_1421052415.jpg',name:'Siow Kim Chong',age:'63',location:'Negeri Sembilan',problem:'Diabetes, High Blood Pressure, Thyroid',before:'I had been suffered from diabetes for 10 years and I’d been taking medication. My right leg was swelling due to the heat in body cannot be appeased.  I faced difficulty to walk as the tightness of the swollen leg. I also suffered from high blood pressure for 5 to 6 years, I had been hospitalized for dripping due to my blood pressure hit to 200mm/Hg.  Besides that, I was suffered from difficulty of breath and thyroid, there is a tumor near my necks.',after:'After 3 months of consumption of 3 tablets of GREENO® Golden Clam®  at each morning and night. I was so surprised that the tumor was disappeared , even the doctor also felt surprising. My condition of diabetes, swollen leg had been improved. My blood pressure also dropped from 200mm/Hg to 150mm/Hg and 80mm/Hg. Thanks GREENO® Golden Clam®  for its excellent effectiveness which bring back my health.'},
+    {img:'testi_1421052468.jpg',name:'Tham Thoong Seng',age:'69',location:'Selangor',problem:'High Blood Pressure, Osteoporosis, Sinus Disorder',before:'I was retired and I suffered from osteoporosis since 2009. I also faced swollen and tightness at my legs. Besides that, my blood pressure index  also reached190mm/Hg and I was suffered from sinus disorder too.',after:'At Jan 2010,my friend recommended GREENO® Golden Clam®  to me. I bought 60 boxes in the first month. I started consume 3 tablets at each morning and night. A week later, my condition of sinus disorder and osteoporosis improved, even my blood pressure also dropped to 130mm/Hg.'},
+    {img:'testi_1421052539.jpg',name:'Lin Kim Seong',age:'63',location:'Negeri Sembilan',problem:'High Blood Pressure, Stroke',before:'I worked in construction industry and I was suffered from high blood pressure for few years. Unfortunately, I was attacked by stroke during June 2010. I am unable to work, talk or even to move my body. Thus, I was hospitalized.',after:'On the third day of hospitalization, my friend brought me a box of GREENO® Golden Clam® . I started to consume 3 tablets at each morning and night. After a week, I am able to move slowly. With less than 3 months, I can move freely as before. GREENO® Golden Clam®  was definitely an excellent product!3 tablets for each morning and night was too few for me.'},
+    {img:'testi_1421052618.jpg',name:'Kee Li Huang',age:'42',location:'Johor',problem:'Thyroid Hyperkinetic',before:'I was diagnosed with Thyroid Hyperkinetic since 10 years ago. Even though I had took 10 years medication, but there was no improvement. At year 2010, my doctor advise me to change the medication to “radiation water”, but I reject as I heard my sister’s friend had to go for dialysis after consume “radiation water”.',after:'I started to consume GREENO® Golden Clam®  on July 2010. It is very surprising that my thyroid stimulating hormone had return to normal level during my check-up on November 2011.'},
+    {img:'testi_1421052682.jpg',name:'Lau Keen Meng',age:'44',location:'Cameron Highland',problem:'Back Pain, Rheumatism, Aches, Headache, Allergy ( bean ), Bloating, Tiredness',before:'As a plumber, I faced a lot of health problems before consume  GREENO® Golden Clam®. I felt headache and dizziness during hot weather. My back pain and rheumatism worsened after I take cold food. I cannot squat for longer time as I  will suffered from hemorrhoids, lack of energy, insomnia and felt tired.',after:'At 06.05.2010, my wife bought me a box of GREENO® Golden Clam®, I started to consume 2 tablets at morning and 3 tablets at night. Sometimes, I will increase the dosage. A week later, I felt the healing reaction. I regain my energy and no longer suffer from insomnia. My snoring also had been improved. Now, I never felt back pain after ate duck, ice,  teh tarik or during raining day. Thanks GREENO® Golden Clam® for bring back my health.'},
+    {img:'testi_1421052795.jpg',name:'Nurul',age:'26',location:'Kuala Lumpur',problem:'Bulging Disc, Asthma, Minor Thalassemia',before:'I was suffered from bulging disc since 2006. Before married, I always felt back pain at the spine and tired. I need to take pain killer to release my pain. I also suffered from asthma and minor Thalassemia.',after:'I consumed 3 boxes of GREENO® Golden Clam® in the first 20 days, with 3 tablets per day before sleep. My condition of back pain improved after the second day of consumption. I also took GREENO® Golden Clam® during my pregnancy, my son didn’t get jaundice when he was born and seldom fall in sick. Besides that, after my husband finished one box of GREENO® Golden Clam®, his sexual ability was improved.'},
+    {img:'testi_1467094061.jpg',name:'Siow Wee Fen',age:'36',location:'Malacca',problem:'G6PD Deficiency',before:'I got the inherited G6PD ( glucose-6-phosphatase ) deficiency from my father. This is a common congenital disease. Due to the glucose cannot be break down naturally, thus sometimes I will suffered from hemolytic reaction and other symptoms like  tired, shortness of breath, heart failure, shock and even be life-threatening. Unfortunately, my elder son also been threaten by this disease ( According to genetic analysis, if the mother is confirmed patients, while the father is normal, thus the son will be the carrier of the gens, and the daughter will only got 50% of the chances to get it.',after:'When I was pregnant with my third child, I got to know Greeno Golden Clam through my sister. I started to consume 3 tablets at each morning and night. Although I only consumed for less than 3 months, very luckily my third son was free from this disease and didn’t have any jaundice when he was born. My elder son and second daughter had jaundice when they were born.'}
+  ];
+
+  const testimonialsZh = [
+    {img:'testi_1570784505.jpg',name:'Hoo Kok Shin',age:'49',location:'森美兰',problem:'乙型肝炎携带者',before:'我的肝指数很高，可能导致肝硬化和肝癌。我尝试过很多保健品，但未见改善。',after:'了解黄金蚬后，我开始早晚各服用3粒。三个月后，肝指数显著下降：AST从127降到52，ALT从259降到87，GGT从82降到39。失眠问题也改善了！'},
+    {img:'testi_1467168291.jpg',name:'Tan Meng Suan',age:'55',location:'吉打',problem:'系统性红斑狼疮',before:'我患SLE超过10年，经常呼吸困难、心脏问题、腿无力。晚上无法入睡。除了药物，还服用了蜂胶和初乳，但无改善。',after:'我开始每天早午晚各3粒黄金蚬，并每天喝3-4次Springlife。有时我会加量到每天12粒以减轻疼痛。几个月后情况好转，药量减少。六个月后，根据健康报告，SLE指数恢复正常，我不再需要药物。'},
+    {img:'testi_1467164310.jpg',name:'Ling Heng Chiong',age:'50',location:'砂拉越',problem:'高血糖、高血压、高胆固醇、尿酸高',before:'我患尿酸、高血糖、高胆固醇和高血压已有25年。以前只要吃羊肉，第二天就因关节剧痛和腿肿无法行走。',after:'我开始早晚各3粒黄金蚬，并在饮水中加入10泵Springlife。现在尿酸100%恢复，胆固醇从7+降到4+，恢复正常。肤色也改善很多！'},
+    {img:'testi_1453862444.jpg',name:'Tan Cho Huang',age:'63',location:'砂拉越',problem:'荷尔蒙问题',before:'4年前我被诊断出荷尔蒙问题并开始服用激素药物。我问医生要服用多久，他说5-6年甚至更长。我知道这不是办法。偶然参加黄金蚬餐会后了解了产品。我带了资料回家研究，下个月再次参加后疑虑消除，开始早晚各3粒黄金蚬。最后经医生许可，我停用了激素药物。',after:'我十多年的关节疼痛，蹲下是最害怕的动作，因为蹲下去就难站起来。我不敢手术因为不再年轻。后来我开始服用Spring Life和Cal Plus。每天喝的水都加Spring Life，Cal Plus午饭后2包。不知不觉一天和孙子玩耍时，我能轻松蹲下站起。太高兴了！我在此呼吁大家，服用保健品需要耐心。'},
+    {img:'testi_1453864718.jpg',name:'Nevan Toh',age:'3',location:'砂拉越',problem:'皮肤敏感',before:'Nevan（由母亲Stephy Chua代表）有皮肤敏感问题。涂了医生给的药膏还是痒，越抓越痒。',after:'之后我将Spring Life涂在他的痒处。仅一周，肿胀和瘙痒就消失了。太开心了。'},
+    {img:'testi_1453256325.JPG',name:'Sia Yik Tong',age:'58',location:'砂拉越',problem:'高尿酸',before:'我的尿酸很高，因为我是重度饮酒者。每年都要去医院打针稳定尿酸。',after:'从2012年开始，我知道黄金蚬可以在饮酒时保护肝脏，于是早晚各3粒。令人惊讶的是，尿酸得到控制，不再需要打针。另一个从小困扰我的胃病也解决了。有时夜里胃酸发作无法入睡，服用黄金蚬后胃炎也康复了。我现在快乐健康地生活。'},
+    {img:'testi_1467081261.jpg',name:'Sia Ham Ping',age:'86',location:'砂拉越',problem:'胃癌',before:'我是癌症患者。2004年患胃癌康复。2015年初我发现经常发烧发冷，检查后CEA值为31mg/L（正常0-2.5），进一步CT扫描诊断为结肠癌。',after:'手术后我每天早晚各10粒黄金蚬，并4天喝1瓶Spring Life。恢复速度惊人，一个月后就可以像往常一样运动。复查时CEA为17mg/L（仍偏高）。不幸肝脏受影响并诊断为肝癌，再次手术恢复也很快。现在86岁的我仍然活着很开心。'},
+    {img:'testi_1444891846.jpg',name:'Chan Foh Chin',age:'69',location:'森美兰',problem:'意外伤害、老年斑和皱纹',before:'儿子向我推荐黄金蚬和Springlife后，我开始早晚各3粒黄金蚬，并在每天饮水中加入Springlife以改善健康。',after:'有一天我过马路被车撞伤头部，造成瘀伤。医生检查后说几天内会康复。但晚上头痛剧烈。孙子建议我大量饮用Springlife以促进血液循环。第二天早上醒来头不痛了，瘀伤也消失了。太惊讶了！至今我仍服用这两款产品，老年斑和皱纹明显减少。'},
+    {img:'testi_1467683221.jpg',name:'Stephy Chua',age:'36',location:'砂拉越',problem:'哮喘（其儿子）',before:'我的儿子从1到3岁就患有支气管敏感，经常去诊所做雾化治疗。他还服用了大量抗生素，导致健康状况恶化，最终发展成哮喘。',after:'尝试Greeno产品后，他的哮喘康复了，之后很少生病。'},
+    {img:'testi_1417773258.jpg',name:'Lai Piak Kim',age:'55',location:'砂拉越',problem:'末期鼻癌',before:'2011年我因半面麻木、牙龈酸痛和头痛被诊断出末期鼻癌。癌细胞扩散到肺部和右眼。我仅完成了5周的化疗和放疗（原需7周）。因为身体太虚弱，医生宣布我已时日无多，建议回家。我只能卧床无法翻身，背部开始溃烂。',after:'我开始早午晚各3粒黄金蚬，并每天大量饮用Springlife。还在背部伤口上大量喷洒Springlife。一个月后背部伤口完全愈合，我能在搀扶下行走。两个月后可以自由活动。现在癌细胞已完全消除。医生宣布这是奇迹！'},
+    {img:'testi_1445567536.jpg',name:'Lee Chee Seng',age:'54',location:'森美兰',problem:'糖尿病',before:'我患糖尿病多年，血糖曾飙升至17.1mmol/L。长途驾驶时感到疲劳，需频繁停车休息。',after:'2014年11月经姐姐介绍，我开始睡前服用3粒黄金蚬，当时血糖为12.2。几个月后，长途驾驶时整天精力充沛，食欲也改善。2015年2月体检血糖降至7.1。期间我仍然每天喝咖啡、吃甜食。对这个结果非常满意。'},
+    {img:'testi_1445567575.jpg',name:'Lee Chwee Peng',age:'47',location:'森美兰',problem:'药物过敏和胃病',before:'我从小就有药物过敏，服用止痛药会导致眼睛肿胀，通常需要几天才能恢复。',after:'2014年2月开始服用黄金蚬和Springlife后，我的药物过敏问题解决了。此外，我对酒精敏感，喝酒后身体会出疹子。但如果在喝酒前服用3粒黄金蚬，问题不再出现。胃病也同时治愈。'},
+    {img:'testi_1445567667.jpg',name:'Cheng Ee Ping',age:'23',location:'森美兰',problem:'雀斑',before:'我从小脸上就有雀斑。暴晒后颜色更深。尝试过很多护肤品但无改善。',after:'我每天早晚在饮水中挤4泵Springlife，并在1.5升水中挤6-8泵。仅一个月，雀斑、斑点及肤色就改善了。除了饮用，我还将Springlife以10%比例混合90%水喷在脸上保湿、提亮和防晒，亦有抗菌效果。'},
+    {img:'testi_1445567623.jpg',name:'Yau Kwee Yin',age:'70',location:'森美兰',problem:'肾脏萎缩',before:'我因宫颈癌放疗出现尿道炎症和尿血块。大量服药后身体状况恶化。2014年5月发现肾脏萎缩，医生建议透析。',after:'我很害怕，拒绝透析。开始睡前服用2粒黄金蚬并大量饮用Springlife。头几天出现腹泻，持续数日。三个月后，肾功能改善80%，完全无需透析。'},
+    {img:'testi_1467623773.jpg',name:'Chan Pau Keong',age:'49',location:'森美兰',problem:'高血糖和炎症性肠病',before:'我血糖偏高（6.4mmol/L）。',after:'我开始睡前服用3粒黄金蚬，每天在饮水中挤3-4泵Springlife。一周后腹痛，我以为是食物中毒不在意。几周后腹痛加剧并发烧。体检发现肠道有小孔和炎症。住院期间大量服用黄金蚬和Springlife。三天后炎症性肠病康复，血糖降至4.9mmol/L。'},
+    {img:'testi_1444891727.jpg',name:'Ho Oi Ching',age:'49',location:'沙巴',problem:'咳嗽和背痛',before:'我在服用黄金蚬之前经常咳嗽和背痛。',after:'朋友介绍黄金蚬后，我每天早上服用2-3粒。一个月后，咳嗽和背痛改善很多，肤色也好了，视力也提高了。'},
+    {img:'testi_1444881145.jpg',name:'Rachel Lim',age:'37',location:'沙巴',problem:'高血糖',before:'我的血糖指数在9-11mmol/L之间，我开始控制饮食但无改善。',after:'2013年1月20日，在Labuan Aifa酒店参加健康讲座后，我决定服用黄金蚬，每天5-10粒。几天后自行测血糖，指数已降至正常。'},
+    {img:'testi_1326164132.jpg',name:'Latifah binti Abdullah',age:'59',location:'槟城',problem:'糖尿病、视力模糊',before:'我患糖尿病近16年。六年前病情加重，脚底有一个50分硬币大小的洞，视力模糊。因血糖高（超过22mmol/L）频繁住院。最近医生因病情严重建议截肢。',after:'2009年10月，孩子推荐GREENO®黄金蚬。我每天服用三粒。现在脚伤慢慢恢复，脚底的洞变小了，脓也干了。医生证实脚部恢复近80%，无需截肢。服用后更健康、精力充沛，视力改善，食欲良好。'},
+    {img:'testi_1420263650.jpg',name:'Thio Hang Nei',age:'36',location:'柔佛',problem:'月经问题和胃病',before:'我长期有月经问题。每次经期疼痛到只能卧床。2006年出现另一个健康问题：在人多的地方（公司或商场）会呼吸困难。有一天在工厂晕倒送医，医生诊断为恐慌症。后来改看中医，确认是因胀气引起的喉球症。',after:'2007年朋友介绍GREENO®黄金蚬。前三个月出现月经不调症状，经血从暗红变浅，经痛逐渐减轻。通过GREENO健康讲座学到肝脏知识，意识到喉球症是因10年夜班工作引起。从开始护肝后，喉球症完全康复！仍继续服用作为保健。现在不再有经痛和喉球症，生活更加多姿多彩。'},
+    {img:'testi_1326163802.JPG',name:'Jaafar Hj. Jakaria',age:'56',location:'沙巴',problem:'失眠、胃胀、口腔溃疡、高LDL胆固醇、脚底刺痛',before:'我每晚难以入睡。饭后总觉得胃胀不适。胃痛和腹痛几乎每晚把我惊醒。醒来后很难再入睡，第二天感觉睡眠不足和疲倦。此外，几乎每个月都有口腔溃疡，LDL胆固醇高，脚底有刺痛感。',after:'服用GREENO®黄金蚬近两个月后，失眠、胃不适、疲倦和脚底刺痛得到缓解。能轻松入睡，第二天精力充沛。同时LDL胆固醇也降低了！感谢GREENO®黄金蚬！'},
+    {img:'testi_1326163731.jpg',name:'Puan Hajjah Dayang Binti Benson',age:'52',location:'沙巴',problem:'贫血、月经问题、瘙痒',before:'我有红细胞问题（贫血），因此每三个月需验血。此外，经常有刺痛感、麻痹和失眠问题。同时月经不调！瘙痒和皮疹也困扰着我的日常活动。',after:'Alhamdulillah，所有疾病尤其是从小折磨我的贫血，在服用GREENO®黄金蚬后得到缓解。使用GREENO®草本Plus卫生巾后月经变得规律！现在我可以自信地享受生活和进行所有日常活动。'},
+    {img:'testi_1326163687.jpg',name:'Hajjah Sarkiah Hj. Zakaria',age:'62',location:'沙巴',problem:'风湿、心悸',before:'我经常有风湿问题，尤其在做礼拜时。有时无缘无故心悸，导致呼吸困难。因此去做了心脏检查，但医生诊断没有心脏病。',after:'亲戚介绍GREENO®黄金蚬。前10天早晚各3粒。第一周关节疼痛、呼吸困难。但我坚持服用。在吃完一盒GREENO®黄金蚬之前，风湿和呼吸问题就康复了。现在我能无痛苦地完成礼拜！感谢GREENO®黄金蚬！'},
+    {img:'testi_1326111621.jpg',name:'Masne Mokiun',age:'41',location:'沙巴',problem:'子宫癌、严重痘痘',before:'2009年我发现患子宫癌，腹部和子宫经常疼痛。同时整脸长满有脓的痘痘。我开始寻找治疗方法。当时来自亚庇的Puan Dayang向我介绍了GREENO®黄金蚬和GREENO®草本Plus卫生巾。',after:'10月初开始服用GREENO®黄金蚬并使用GREENO®草本Plus卫生巾。第一个月就看到了积极效果，腹部和子宫不再疼痛。服用两个月后脸上痘痘完全康复。见证产品效果后，我决定认真加入GREENO事业帮助需要的人。去年11月还达到了钻石经理级别。感谢GREENO！'},
+    {img:'testi_1326109872.JPG',name:'Goh Chai Lai',age:'44',location:'柔佛',problem:'肝硬化、丙型肝炎',before:'我从1990年到2004年吸毒。2008年体检发现患丙型肝炎和肝硬化。当时医生说没有药物可以治愈，因此没有开药。我的脸和皮肤苍白；嘴唇颜色深，眼下有严重黑眼圈。看起来虚弱瘦小，没有食欲、没有精力，每天都困倦疲劳。',after:'2009年9月9日，朋友介绍GREENO®黄金蚬。前5天服用后仍然困倦，但醒来后感觉精力充沛。5天后精神越来越好。一个月后脸和嘴唇变得红润，食欲好转，体重增加。现在每天都能精力充沛地工作。'},
+    {img:'testi_1467082593.jpg',name:'Rebecca Liew',age:'36',location:'砂拉越',problem:'免疫系统差、缺氧',before:'从2013年7月认识Bio Greeno以来，我一直使用Spring Life、黄金蚬、HEQ和Cal Plus。从小免疫系统差、缺氧，严重时会晕倒。我喜欢旅行但睡眠质量差甚至失眠，免疫系统也差，旅途必须带很多药物。',after:'自从服用全线产品后，免疫系统增强，睡眠改善。每天早晚各3粒黄金蚬，午饭后2包Cal Plus，Spring Life随时饮用。旅行时随身携带HEQ。现在健康状况良好。'},
+    {img:'testi_1467358920.jpg',name:'Yong Chan Siew',age:'39',location:'砂拉越',problem:'失眠、疲劳、敏感鼻子',before:'我失眠超过10年。因此容易发怒、总是疲劳。还有敏感鼻子问题。',after:'仅4粒黄金蚬就感受到效果。我饭后服用2粒，4天后就能入睡。又过两周，敏感鼻子问题解决了，胸痛也消失了。服用黄金蚬期间出现一些好转反应如严重背痛、胃病和眼睛肿胀，让我失去信心。但得到上线建议后我决定继续。现在已恢复正常生活。'},
+    {img:'testi_1467681990.JPG',name:'Majnah Binti Abdillah',age:'40',location:'沙巴',problem:'心律不齐、背痛、偏头痛',before:'我有心脏瓣膜问题。虽然做了扩张手术不再需要服药，但有时仍然心律不齐，尤其在劳累或压力大时。每天早晨醒来背部疼痛。还经常偏头痛，通常会持续到第二天。因此被迫服用Panadol或其他止痛药。',after:'服用GREENO®黄金蚬后，即使用力工作心律不齐也没再出现。同时背痛也解决了！现在偏头痛发作时，我闻GREENO®薄荷清新，10到15分钟就缓解。'},
+    {img:'testi_1326111679.JPG',name:'Lee Foong Choon',age:'72',location:'彭亨',problem:'糖尿病、中风、高血压、哮喘、肾功能障碍',before:'在服用GREENO®黄金蚬之前，我身上什么病都有！长期糖尿病、高血压和哮喘。血糖曾超过25mmol/L，每天早晚需注射38单位胰岛素。因糖尿病视力越来越模糊。血压曾高达220/100mmHg，属于危险水平。哮喘每周至少两次需入住ICU。完全不能碰水否则哮喘发作。行动不便，走几步就喘。2004年9月中风，手脚麻木，腿部患有湿疹。此外医生还证实一个肾脏需要透析。',after:'2009年10月开始服用GREENO®黄金蚬和N系列N5，每天早晚各3粒黄金蚬和1粒N5。现在情况改善：血糖从>25降至9mmol/L，胰岛素注射减至14单位且不需每天注射。血压降至160/67mmHg。最严重的哮喘不再发作，无需使用哮喘喷雾。腿部湿疹和行动能力改善。医生证实之前需要透析的肾脏已恢复，还可再运作至少两年。住院期间结识不少病友。他们见我服用GREENO®产品后气色越来越好，都问我吃了什么。因为GREENO®黄金蚬和N5，我的健康重新燃起希望！谢谢GREENO！'},
+    {img:'testi_1326109757.JPG',name:'Sim Ming Kai',age:'10',location:'柔佛',problem:'眼睛过敏、免疫力弱',before:'从两岁起，Ming Kai就患有眼睛过敏，暴露在污染环境中眼睛会红肿。他瘦小、经常生病如发烧、流感、咳嗽，有时甚至哮喘。此外幼儿园老师还投诉他经常在教室里呕吐。',after:'2007年，Ming Kai的姑姑推荐GREENO®黄金蚬。服用后他发烧、咳嗽并吐出大量痰液。这是好的迹象——表明免疫系统正在杀死病毒和细菌。一周后所有症状停止。食欲变好，身体更强壮，免疫力提高，不再容易生病。最终眼睛过敏也痊愈了。'},
+    {img:'testi_1467081443.jpg',name:'Tang Kok Loo@ Tang Ah Bah',age:'68',location:'马六甲',problem:'耳鸣、前列腺问题',before:'服用GREENO®黄金蚬前，我经常有耳鸣和前列腺问题（排尿困难）。这些问题持续约一年。此外用筷子夹菜时左手严重颤抖。孩子说我得了帕金森病，劝我去看医生。但我阅读了许多健康杂志，了解到帕金森病无药可治，可能需要昂贵的医疗费用。杂志建议保持愉快心态和多运动。2009年8月26日，我在网上看到一些GREENO®黄金蚬成功的见证，发现它甚至能治疗帕金森病。于是前往位于蒲种的GREENO中心了解产品信息。经专家解释后我决定购买两盒尝试。',after:'第一周早晚分别服用2粒和3粒GREENO®黄金蚬。头两三天感觉全身发热、头痛欲裂。但我坚持服用！两三天后头不痛了，身体不再发热。从第二周开始减量，早1粒晚2粒。第三周仅晚上服用2粒。耳鸣和手颤症状在第一周后减轻。第三周手颤完全治愈！排尿也顺畅了。见证效果后我开始向亲友推荐，并将继续服用GREENO®黄金蚬！'},
+    {img:'testi_1416911583.jpg',name:'Abdul Hisham Bin Saad',age:'38',location:'北海',problem:'糖尿病和脚肿',before:'我患严重糖尿病导致右脚肿胀。因此行走困难，无法久站。此外脚部经常麻木。',after:'我每天饮用15ml Springlife连续10天。因恢复反应，前三天感到头晕、身体瘙痒、疲劳和失眠。但之后脚部麻木改善。随后开始早晚各3粒黄金蚬。仅五天，肿胀部位开始流出又脏又臭的血。现在发炎部位开始收缩并慢慢愈合。'},
+    {img:'testi_1417773164.jpg',name:'Muhd. Afif Farhan',age:'4',location:'吉打',problem:'无法行走和久站、经常发烧',before:'从小Afif行走站立困难。因为胫骨异常，脚比正常小。他还经常发烧，脸色苍白如贫血。',after:'服用黄金蚬®和Springlife™两周后，皮肤出现红润，脚和胫骨似乎生长丰满。他开始积极尝试行走。最终能独立行走，脸上重现笑容。'},
+    {img:'testi_1417773488.jpg',name:'Nuraisyah Fatihah Bt. Baharuddin',age:'19',location:'吉打',problem:'地中海贫血',before:'我从小被诊断患有地中海贫血。因此经常感觉精力不足和困倦。每月需输血2包，非常痛苦！',after:'服用黄金蚬和Springlife一个月后感觉更有精力。第二个月减少到每月一次输血来补充红细胞。八个月后输血频率降至每两个月一次。'},
+    {img:'testi_1417773999.jpg',name:'Thum Siew Sin',age:'82',location:'柔佛',problem:'中风',before:'2012年4月我突然晕倒，被送到诊所检查。医生说我血压过高（超过180），开了一些药。回家后似乎患上痴呆，无法行走。女儿让我服用黄金蚬®和Springlife™，第二天意识恢复。之后另一个女儿带我去医院进一步检查。医生诊断我左侧中风，住院两天。出院后需服用降压药，并定期回院做物理治疗。',after:'家人带我去做针灸治疗。此外每天服用4粒黄金蚬®、2粒Cal Plus和Springlife™。一周后腿能抬起，可以拄拐行走。三个月后能自由活动，还与家人去了云顶高原。感谢Greeno®恢复我的健康。'},
+    {img:'testi_1417774213.jpg',name:'Hajah Radziah Zakaria',age:'59',location:'吉打',problem:'糖尿病、高血压、手指麻木',before:'我患糖尿病超过10年，必须注射胰岛素控制血糖。手指经常麻木僵硬，导致无法入睡。此外坐在地上后很难站起来，右大腿和胫骨经常疼痛，精力不足。心脏跳动很快让我不适。',after:'4天内喝完2瓶Springlife®后，手指麻木有所改善。服用黄金蚬®和Springlife®一个月后，无需注射胰岛素就能控制血糖。心跳也恢复正常。现在晚上能睡得更好。谢谢GREENO！'},
+    {img:'testi_1417774413.jpg',name:'Lim Yoke Theng',age:'32',location:'柔佛',problem:'甲状腺和不孕',before:'2008年我因双手莫名颤抖、脚红肿被诊断出甲状腺问题。此后每天需服用10粒药物。服药后整天昏睡在床上，不吃饭，甚至因药物过敏送医院。出院后药物增至每天11粒。虽然甲状腺指数下降，但脸上长满痘痘，面容憔悴，每天头晕，无法工作，吃什么都是苦的！我几乎得了神经症，常在半夜哭泣。为减轻痛苦我开始寻求传统治疗和其他保健品，但结果令人失望。因私处难以忍受的疼痛和浮肿，中医曾怀疑我患宫颈癌。近年来虽未避孕仍无法怀孕，我渴望再要一个孩子。经过传统治疗，2010年7月怀孕但9月流产。医生说如果再怀孕流产概率很高。',after:'2010年12月，Greeno蓝钻总监Poh Yin向我介绍产品后，我开始每天早晚各4粒黄金蚬®。效果超乎预期！仅一个月后复查，甲状腺指数恢复正常。同时我再次怀孕！这次因服用黄金蚬®，成功保住了胎儿并平安分娩。现在儿子已经九个月大，健康可爱。我的健康状况也大大改善。'},
+    {img:'testi_1417774506.jpg',name:'Nayef Bin Jamaluddin（5个月）',age:'0',location:'玻璃市',problem:'哮喘',before:'Nayef在3个月大时被诊断为婴儿哮喘。此后父母经常带他去诊所做雾化治疗。虽然做了8次治疗，但情况无改善。',after:'2012年5月17日，父亲在收音机听到Greeno产品介绍，于是赶往Holiday Villa酒店见Dr. Zulkifli。他建议Nayef每天服用30滴Springlife™。由于Nayef仍在哺乳，建议母亲每天服用2粒黄金蚬®。感谢上帝！一周后Nayef情况大为改观，不再咳嗽、有痰和流感。还能整夜安睡。5个月时体重从4.3kg增至8.5kg。2012年5月29日月检时值班医生宣布Nayef不再患哮喘。'},
+    {img:'testi_1421052228.jpg',name:'Salleh Bin Ali',age:'53',location:'沙巴',problem:'痛风、糖尿病、高血压、胃病',before:'我患痛风、糖尿病超过10年，血压超过200mmHg。因此住院。之后约三个月无法行走。期间需服用痛风、糖尿病、高血压和胃病药物。',after:'住院时朋友介绍GREENO®黄金蚬。我开始早晚各3粒。服用10盒后能够行走，血压降至130/75mmHg，血糖从18mmol/L降至5.4mmol/L。'},
+    {img:'testi_1467612241.jpg',name:'Sim Lily',age:'41',location:'柔佛',problem:'中风、高血压、糖尿病、手脚麻木',before:'我10年前患妊娠高血压和糖尿病。需依赖传统草药控制。不幸2008年5月因高血压中风，导致半身不遂、口歪眼斜，无法说话和移动手脚。只能整天卧床。',after:'有人向我丈夫介绍黄金蚬和N5后我开始服用。2天后三根手指能动。10天后神经和口歪问题好转，最终能说话。两个月后手脚可以活动，三个月后完全康复。'},
+    {img:'testi_1421052293.jpg',name:'Lee Kin Chong',age:'37',location:'柔佛',problem:'乙型肝炎携带者',before:'10年前献血时发现是乙型肝炎携带者。',after:'2008年5月经朋友介绍开始服用GREENO®黄金蚬。2010年5月体检显示乙肝病毒已清除。我和妻子都非常高兴。另外2009年初妻子怀第三胎时大量服用黄金蚬，儿子出生时头发又浓又黑（前两个儿子出生时头发很少）。三儿子接种疫苗后一年内很少生病。感谢GREENO®黄金蚬如此优秀的产品！'},
+    {img:'testi_1421052415.jpg',name:'Siow Kim Chong',age:'63',location:'森美兰',problem:'糖尿病、高血压、甲状腺',before:'我患糖尿病10年，一直在服药。右腿因体内热毒无法消退而肿胀，行走困难。患高血压5-6年，曾因血压高达200mmHg住院输液。此外呼吸困难和甲状腺问题，颈部长有肿瘤。',after:'连续3个月每天早晚各3粒GREENO®黄金蚬。让我惊讶的是肿瘤消失了，连医生都感到震惊。糖尿病和腿部肿胀状况改善。血压从200/降至150/80mmHg。感谢GREENO®黄金蚬卓越的效果让我恢复健康。'},
+    {img:'testi_1421052468.jpg',name:'Tham Thoong Seng',age:'69',location:'雪兰莪',problem:'高血压、骨质疏松、鼻窦炎',before:'我已退休，2009年起患有骨质疏松。腿肿胀紧绷。血压高达190mmHg，还有鼻窦炎问题。',after:'2010年1月朋友推荐GREENO®黄金蚬。第一个月我买了60盒，开始早晚各3粒。一周后鼻窦炎和骨质疏松改善，血压降至130mmHg。'},
+    {img:'testi_1421052539.jpg',name:'Lin Kim Seong',age:'63',location:'森美兰',problem:'高血压、中风',before:'我在建筑行业工作，患高血压几年。不幸2010年6月中风，无法工作、说话和移动身体。因此住院。',after:'住院第三天朋友带来一盒GREENO®黄金蚬。我开始早晚各3粒。一周后能慢慢移动。不到三个月就能像以前一样自由活动。GREENO®黄金蚬绝对是优秀产品！早晚各3粒对我来说太少了。'},
+    {img:'testi_1421052618.jpg',name:'Kee Li Huang',age:'42',location:'柔佛',problem:'甲状腺亢进',before:'10年前被诊断出甲状腺亢进。虽服药10年但无改善。2010年医生建议改用“放射水”，但我拒绝，因为听说朋友的朋友使用后需做透析。',after:'2010年7月开始服用GREENO®黄金蚬。令人惊喜的是，2011年11月检查时甲状腺刺激激素已恢复正常。'},
+    {img:'testi_1421052682.jpg',name:'Lau Keen Meng',age:'44',location:'金马仑高原',problem:'背痛、风湿、头痛、豆类过敏、胀气、疲劳',before:'作为水喉匠，我在服用GREENO®黄金蚬前有很多健康问题。热天时头痛头晕。吃冷食后背痛和风湿加重。不能长时间蹲下，否则痔疮发作。缺乏精力、失眠、疲劳。',after:'2010年5月6日妻子买了一盒GREENO®黄金蚬给我。我早晚分别服用2粒和3粒，有时加量。一周后出现好转反应。我恢复精力，不再失眠。打鼾也改善了。现在即使吃鸭肉、冰品、teh tarik或下雨天也不再背痛。感谢GREENO®黄金蚬恢复我的健康。'},
+    {img:'testi_1421052795.jpg',name:'Nurul',age:'26',location:'吉隆坡',problem:'椎间盘突出、哮喘、轻度地中海贫血',before:'我从2006年患有椎间盘突出。结婚前经常背痛和疲劳，需服止痛药。还有哮喘和轻度地中海贫血。',after:'前20天我服用了3盒GREENO®黄金蚬，每天睡前3粒。第二天背痛就改善了。怀孕期间也服用黄金蚬，儿子出生时没有黄疸，很少生病。此外我丈夫服完一盒黄金蚬后，性能力提高了。'},
+    {img:'testi_1467094061.jpg',name:'Siow Wee Fen',age:'36',location:'马六甲',problem:'G6PD缺乏症',before:'我从父亲遗传了G6PD（葡萄糖-6-磷酸脱氢酶）缺乏症。这是一种常见先天性疾病。由于葡萄糖无法正常分解，有时会出现溶血反应及其他症状如疲劳、气短、心力衰竭、休克甚至危及生命。不幸大儿子也受此病威胁（根据遗传分析，如果母亲确诊、父亲正常，儿子会成为基因携带者，女儿有50%概率患病）。',after:'怀第三胎时通过姐姐认识Greeno黄金蚬。我开始早晚各3粒。虽然只服用不到三个月，非常幸运三儿子没有患病，出生时也没有黄疸。而大儿子和二女儿出生时都有黄疸。'}
+  ];
+
+  const testimonials = lang === 'zh' ? testimonialsZh : testimonialsEn;
+
+  return (
+    <div>
+      <section className="py-20 md:py-28 px-6 md:px-12 bg-[#F5F1E8]">
+        <div className="max-w-[1400px] mx-auto">
+          <div className="smallcaps text-[11px] text-[#6A8056] mb-6 flex items-center gap-3">
+            <span className="w-8 h-px bg-[#6A8056]"/>{tx('test_page_eyebrow')}
+          </div>
+          <h1 className="font-serif-display text-5xl md:text-7xl font-light leading-[1.05] mb-6">
+            {tx('test_page_t1')}<br/><em className="text-[#6A8056]">{tx('test_page_t2')}</em>
+          </h1>
+          <p className="max-w-xl text-[17px] leading-[1.7] text-[#1F2519]/70 font-light mb-16">{tx('test_page_body')}</p>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {testimonials.map((t,i)=>(
+              <div key={i} className="bg-[#F5F1E8] border border-[#1F2519]/10 hover:border-[#6A8056]/30 transition-colors overflow-hidden">
+                {/* Photo + header */}
+                <div className="flex items-center gap-4 p-5 border-b border-[#1F2519]/10">
+                  <img src={t.img} alt={t.name}
+                    className="w-16 h-16 rounded-full object-cover shrink-0 border-2 border-[#D4DBC8]"
+                    onError={e=>{e.target.style.display='none'}}
+                  />
+                  <div className="min-w-0">
+                    <div className="font-serif-display text-lg leading-tight truncate">{t.name}</div>
+                    <div className="smallcaps text-[10px] text-[#6A8056] mt-0.5">{t.age ? `${t.age}岁 · ` : ''}{t.location}</div>
+                    <div className="smallcaps text-[9px] text-[#1F2519]/50 mt-1">{t.problem}</div>
+                  </div>
+                </div>
+                {/* Collapsed preview */}
+                <div className="p-5">
+                  <div className="smallcaps text-[10px] text-[#6A8056] mb-2">{tx('test_after')}</div>
+                  <p className={`text-[14px] leading-[1.7] text-[#1F2519]/80 font-light ${expanded===i ? '' : 'line-clamp-4'}`} style={{display:'-webkit-box',WebkitLineClamp:expanded===i?'unset':'4',WebkitBoxOrient:'vertical',overflow:expanded===i?'visible':'hidden'}}>
+                    {t.after || t.before}
+                  </p>
+                  {(t.before && t.after) && (
+                    <button
+                      onClick={()=>setExpanded(expanded===i?null:i)}
+                      className="mt-3 smallcaps text-[10px] text-[#6A8056] hover:text-[#1F2519] transition-colors flex items-center gap-1"
+                    >
+                      {expanded===i ? (lang==='zh'?'收起':'Show less') : (lang==='zh'?'查看完整见证':'Read full story')}
+                    </button>
+                  )}
+                  {expanded===i && t.before && (
+                    <div className="mt-4 pt-4 border-t border-[#1F2519]/10">
+                      <div className="smallcaps text-[10px] text-[#1F2519]/50 mb-2">{tx('test_before')}</div>
+                      <p className="text-[13px] leading-[1.7] text-[#1F2519]/65 font-light">{t.before}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+
+// ─────────────────────────────────────────────
+// PAGE: SPRINGLIFE (placeholder)
+// ─────────────────────────────────────────────
+function SpringLifePage({lang, setPage}) {
+  const tx = k=>t(k,lang);
+  const powers = [
+    {t:tx('sl_p1t'),b:tx('sl_p1b')},
+    {t:tx('sl_p2t'),b:tx('sl_p2b')},
+    {t:tx('sl_p3t'),b:tx('sl_p3b')},
+    {t:tx('sl_p4t'),b:tx('sl_p4b')},
+    {t:tx('sl_p5t'),b:tx('sl_p5b')},
+  ];
+  const benefits = [
+    {t:tx('sl_b1t'),b:tx('sl_b1b')},
+    {t:tx('sl_b2t'),b:tx('sl_b2b')},
+    {t:tx('sl_b3t'),b:tx('sl_b3b')},
+    {t:tx('sl_b4t'),b:tx('sl_b4b')},
+    {t:tx('sl_b5t'),b:tx('sl_b5b')},
+    {t:tx('sl_b6t'),b:tx('sl_b6b')},
+  ];
+  const dosage = [
+    {t:tx('sl_h1t'),d:tx('sl_h1d'),b:tx('sl_h1b')},
+    {t:tx('sl_h2t'),d:tx('sl_h2d'),b:tx('sl_h2b')},
+  ];
+  return (
+    <div>
+      {/* Hero */}
+      <section className="py-20 md:py-28 px-6 md:px-12 bg-[#F5F1E8]">
+        <div className="max-w-[1400px] mx-auto grid md:grid-cols-12 gap-10 md:gap-16 items-center">
+          <div className="md:col-span-6">
+            <div className="smallcaps text-[11px] text-[#6A8056] mb-6 flex items-center gap-3">
+              <span className="w-8 h-px bg-[#6A8056]"/>{tx('sl_eyebrow')}
+            </div>
+            <h1 className="font-serif-display text-[64px] md:text-[96px] leading-[0.95] mb-4">
+              SpringLife<sup className="text-3xl">®</sup>
+            </h1>
+            <div className="smallcaps text-[13px] text-[#1F2519]/60 mb-2">{tx('sl_subtitle')}</div>
+            <div className="smallcaps text-[10px] text-[#6A8056] mb-8">{tx('sl_size')}</div>
+            <p className="text-[17px] leading-[1.7] text-[#1F2519]/75 font-light mb-6 max-w-lg">{tx('sl_desc')}</p>
+            <div className="inline-flex items-center gap-3 border border-[#6A8056]/40 px-5 py-3 mb-8 bg-[#6A8056]/5">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6A8056" strokeWidth="1.5" strokeLinecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+              <span className="smallcaps text-[10px] text-[#6A8056]">{tx('sl_badge')}</span>
+            </div>
+            <div className="flex items-center gap-4 mb-8">
+              <div>
+                <div className="smallcaps text-[10px] text-[#1F2519]/50 mb-1">{tx('sl_price_lbl')}</div>
+                <div className="font-serif-display text-3xl">RM —</div>
+              </div>
+              <div className="h-10 w-px bg-[#1F2519]/15"/>
+              <div className="smallcaps text-[10px] text-[#1F2519]/60">{tx('sl_dosage')}</div>
+            </div>
+            <div className="flex flex-wrap gap-4">
+              <a href="https://wa.me/60123456789" target="_blank" rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 bg-[#1F2519] text-[#F5F1E8] px-8 py-4 smallcaps text-xs hover:bg-[#6A8056] transition-colors">
+                {tx('sl_buy')}
+              </a>
+              <a href="#sl-benefits" className="inline-flex items-center gap-2 border border-[#1F2519]/30 px-8 py-4 smallcaps text-xs hover:bg-[#1F2519] hover:text-[#F5F1E8] transition-colors">
+                {lang==='zh'?'了解更多':'Learn More'}
+              </a>
+            </div>
+          </div>
+          <div className="md:col-span-6">
+            <div className="relative aspect-square overflow-hidden bg-[#f0f4f8]">
+              <img
+                src="springlife-product.jpg"
+                alt={lang==='zh'?'SpringLife® 硅素晶华泉 水溶性硅素 50ml':'SpringLife® Water Soluble Silica 50ml — Greeno'}
+                className="absolute inset-0 w-full h-full object-contain p-4"
+              />
+              <div className="absolute top-6 left-6 bg-[#6A8056] text-[#F5F1E8] smallcaps text-[9px] px-3 py-1.5">{lang==='zh'?'水溶性硅素':'Water-Soluble Silicon'}</div>
+              <div className="absolute bottom-6 right-6 text-right text-[#1F2519]/60">
+                <div className="font-serif-display italic text-sm">{lang==='zh'?'源自':'from'}</div>
+                <div className="font-serif-display text-xl">{lang==='zh'?'10亿年前':'1 billion years ago'}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Why silicon */}
+      <section className="py-20 md:py-28 px-6 md:px-12 bg-[#1F2519] text-[#F5F1E8]">
+        <div className="max-w-[1400px] mx-auto grid md:grid-cols-2 gap-16 items-center">
+          <div>
+            <div className="smallcaps text-[11px] text-[#D4DBC8] mb-6 flex items-center gap-3">
+              <span className="w-8 h-px bg-[#D4DBC8]"/>{tx('sl_why_eyebrow')}
+            </div>
+            <h2 className="font-serif-display text-5xl md:text-6xl font-light leading-[1.05] mb-8">
+              {tx('sl_why_t1')}<br/><em className="text-[#D4DBC8]">{tx('sl_why_t2')}</em>
+            </h2>
+            <div className="space-y-5 text-[16px] leading-[1.8] text-[#F5F1E8]/80 font-light">
+              <p>{tx('sl_why_p1')}</p>
+              <p>{tx('sl_why_p2')}</p>
+              <p>{tx('sl_why_p3')}</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            {[
+              {n:'#2', l:lang==='zh'?'地壳含量排名第二元素':'2nd most abundant in Earth crust'},
+              {n:'20+', l:lang==='zh'?'岁后身体开始失去储存能力':'Age when storage capacity declines'},
+              {n:'10–40mg', l:lang==='zh'?'每天从体内流失的硅素':'Silicon lost from body daily'},
+              {n:'20–50mg', l:lang==='zh'?'营养学建议每日摄取量':'Recommended daily intake'},
+            ].map((s,i)=>(
+              <div key={i} className="border border-[#F5F1E8]/15 p-6">
+                <div className="font-serif-display text-3xl md:text-4xl text-[#D4DBC8] mb-2 leading-none">{s.n}</div>
+                <div className="smallcaps text-[10px] text-[#F5F1E8]/55">{s.l}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Source story */}
+      <section className="py-20 md:py-28 px-6 md:px-12 bg-[#EFE8D6]">
+        <div className="max-w-[1400px] mx-auto">
+          <div className="grid md:grid-cols-12 gap-10 mb-12">
+            <div className="md:col-span-5">
+              <div className="smallcaps text-[11px] text-[#6A8056] mb-6 flex items-center gap-3">
+                <span className="w-8 h-px bg-[#6A8056]"/>{tx('sl_src_eyebrow')}
+              </div>
+              <h2 className="font-serif-display text-5xl md:text-6xl font-light leading-[1.05]">
+                {tx('sl_src_t1')}<br/><em className="text-[#6A8056]">{tx('sl_src_t2')}</em>
+              </h2>
+            </div>
+            <div className="md:col-span-6 md:col-start-7 self-end">
+              <p className="text-[16px] leading-[1.8] text-[#1F2519]/70 font-light">{tx('sl_src_body')}</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {[
+              {n:lang==='zh'?'10亿年':'1 Billion Years', t:lang==='zh'?'前形成的白水晶石':'old white quartz crystal', sub:lang==='zh'?'地球火山喷发时产生':'Formed during Earth volcanic eruptions'},
+              {n:'1 / 100', t:lang==='zh'?'水晶含有活性硅素':'crystals contain active silicon', sub:lang==='zh'?'极为稀贵的天然精华':'Exceptionally rare natural essence'},
+              {n:'2000°C', t:lang==='zh'?'持续8小时高温提取':'8 hours at 2000°C extraction', sub:lang==='zh'?'全球首创先进提取技术':'World-first advanced extraction technology'},
+            ].map((s,i)=>(
+              <div key={i} className="bg-[#1F2519] text-[#F5F1E8] p-8">
+                <div className="font-serif-display text-4xl md:text-5xl text-[#D4DBC8] leading-none mb-3">{s.n}</div>
+                <div className="font-serif-display text-xl mb-2">{s.t}</div>
+                <div className="smallcaps text-[10px] text-[#F5F1E8]/50">{s.sub}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 5 Powers */}
+      <section className="py-20 md:py-28 px-6 md:px-12">
+        <div className="max-w-[1400px] mx-auto">
+          <div className="text-center mb-16">
+            <div className="smallcaps text-[11px] text-[#6A8056] mb-6">{tx('sl_pow_eyebrow')}</div>
+            <h2 className="font-serif-display text-5xl md:text-6xl font-light leading-[1.05]">
+              {tx('sl_pow_t1')}<br/><em className="text-[#6A8056]">{tx('sl_pow_t2')}</em>
+            </h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-px bg-[#1F2519]/10">
+            {powers.map((p,i)=>(
+              <div key={i} className="bg-[#F5F1E8] p-6 md:p-8 hover:bg-[#EFE8D6] transition-colors">
+                <div className="font-serif-display text-4xl text-[#6A8056]/30 mb-4">0{i+1}</div>
+                <h3 className="font-serif-display text-xl mb-3 leading-tight">{p.t}</h3>
+                <p className="text-[13px] leading-[1.7] text-[#1F2519]/65 font-light">{p.b}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 6 Benefits */}
+      <section id="sl-benefits" className="py-20 md:py-28 px-6 md:px-12 bg-[#EFE8D6]">
+        <div className="max-w-[1400px] mx-auto">
+          <div className="grid md:grid-cols-12 gap-10 mb-16">
+            <div className="md:col-span-6">
+              <div className="smallcaps text-[11px] text-[#6A8056] mb-6 flex items-center gap-3">
+                <span className="w-8 h-px bg-[#6A8056]"/>{tx('sl_ben_eyebrow')}
+              </div>
+              <h2 className="font-serif-display text-5xl md:text-6xl font-light leading-[1.05]">
+                {tx('sl_ben_t1')}<br/><em className="text-[#6A8056]">{tx('sl_ben_t2')}</em>
+              </h2>
+            </div>
+            <div className="md:col-span-5 md:col-start-8 self-end">
+              <p className="text-[16px] leading-relaxed text-[#1F2519]/70 font-light">{tx('sl_ben_body')}</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-[#1F2519]/10">
+            {benefits.map((b,i)=>(
+              <div key={i} className="bg-[#F5F1E8] p-8 md:p-10 hover:bg-[#EFE8D6] transition-colors">
+                <div className="font-serif-display text-3xl text-[#6A8056]/30 mb-4">0{i+1}</div>
+                <h3 className="font-serif-display text-2xl mb-3 leading-tight">{b.t}</h3>
+                <p className="text-[14px] leading-[1.7] text-[#1F2519]/70 font-light">{b.b}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* How to use */}
+      <section className="py-20 md:py-28 px-6 md:px-12 bg-[#1F2519] text-[#F5F1E8]">
+        <div className="max-w-[1400px] mx-auto">
+          <div className="text-center mb-16">
+            <div className="smallcaps text-[11px] text-[#D4DBC8] mb-6">{tx('sl_how_eyebrow')}</div>
+            <h2 className="font-serif-display text-5xl md:text-6xl font-light leading-[1.05]">
+              {tx('sl_how_t1')}<br/><em className="text-[#D4DBC8]">{tx('sl_how_t2')}</em>
+            </h2>
+          </div>
+          <div className="grid md:grid-cols-2 gap-6 mb-10">
+            {dosage.map((d,i)=>(
+              <div key={i} className="border border-[#F5F1E8]/15 p-8 md:p-10">
+                <div className="smallcaps text-[10px] text-[#D4DBC8] mb-3">{d.t}</div>
+                <div className="font-serif-display text-5xl text-[#D4DBC8] mb-4">{d.d}</div>
+                <p className="text-[15px] leading-[1.7] text-[#F5F1E8]/70 font-light">{d.b}</p>
+              </div>
+            ))}
+          </div>
+          <div className="grid md:grid-cols-3 gap-4 text-center mb-8">
+            {[tx('sl_note1'), tx('sl_note2'), tx('sl_note3')].map((note,i)=>(
+              <div key={i} className="border border-[#F5F1E8]/15 p-5">
+                <div className="text-[13px] text-[#F5F1E8]/70 font-light leading-[1.6]">{note}</div>
+              </div>
+            ))}
+          </div>
+          <div className="text-center">
+            <div className="inline-block border border-[#F5F1E8]/20 px-6 py-3 smallcaps text-[10px] text-[#D4DBC8]">
+              {tx('sl_safety')}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="py-20 md:py-28 px-6 md:px-12 bg-[#6A8056] text-[#F5F1E8]">
+        <div className="max-w-[900px] mx-auto text-center">
+          <h2 className="font-serif-display text-5xl md:text-7xl font-light leading-[1.05] mb-6">
+            {tx('sl_cta_t1')}<br/><em>{tx('sl_cta_t2')}</em>
+          </h2>
+          <p className="max-w-md mx-auto text-[16px] leading-relaxed text-[#F5F1E8]/85 font-light mb-10">{tx('sl_cta_body')}</p>
+          <a href="https://wa.me/60123456789" target="_blank" rel="noopener noreferrer"
+            className="inline-flex items-center gap-3 bg-[#F5F1E8] text-[#1F2519] px-10 py-5 smallcaps text-xs hover:bg-[#1F2519] hover:text-[#F5F1E8] transition-colors mb-4">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d={WA_PATH}/></svg>
+            {tx('sl_buy')}
+          </a>
+          <div className="smallcaps text-[9px] text-[#F5F1E8]/60 mt-4">{tx('sl_cta_note')}</div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+
+// ─────────────────────────────────────────────
+// PAGE: HUALIEN STORY
+// ─────────────────────────────────────────────
+function HualienPage({lang}) {
+  const s = (zh, en) => lang === 'zh' ? zh : en;
+  const awards = lang === 'zh' ? [
+    {title:'傑出神農獎', sub:'农业最高荣誉'},
+    {title:'傑出漁民獎', sub:'渔业卓越贡献'},
+    {title:'臺灣精緻農業金牌獎', sub:'精致农业金牌'},
+    {title:'臺灣金根獎', sub:'台湾金根荣誉'},
+    {title:'黃金蜆生產履歷', sub:'生产溯源认证'},
+  ] : [
+    {title:'Outstanding Shennong Award', sub:'Highest agricultural honour'},
+    {title:'Outstanding Fisherman Award', sub:'Excellence in aquaculture'},
+    {title:'Taiwan Delicate Agriculture Gold Medal', sub:'Premium farming recognition'},
+    {title:'Taiwan Golden Root Award', sub:'Taiwan heritage honour'},
+    {title:'Golden Clam Production Traceability', sub:'Full-chain traceability certified'},
+  ];
+  const cycleSteps = [
+    {zh:'菌', en:'Bacterium', desc:s('筛选优质菌株，分解有机质，培养藻类机质','Superior bacterial strains decompose organic matter to nourish algae')},
+    {zh:'土', en:'Soil', desc:s('养水需先养土，土壤决定水质基础','Healthy soil is cultivated first — it determines the water quality foundation')},
+    {zh:'水', en:'Water', desc:s('养鱼养蚬，需先养水；活水涌泉，洁净无污','Living spring water — clean, mineral-rich, pollution-free')},
+    {zh:'蚬', en:'Clam', desc:s('在最优质的生态环境中，孕育出金黄饱满的黄金蚬','In this optimised ecosystem, the Golden Clam grows plump and golden')},
+  ];
+  return (
+    <div>
+      {/* Hero */}
+      <section className="py-20 md:py-28 px-6 md:px-12 bg-[#1F2519] text-[#F5F1E8]">
+        <div className="max-w-[1400px] mx-auto grid md:grid-cols-12 gap-10 md:gap-16 items-center">
+          <div className="md:col-span-6">
+            <div className="smallcaps text-[11px] text-[#D4DBC8] mb-6 flex items-center gap-3">
+              <span className="w-8 h-px bg-[#D4DBC8]"/>
+              {s('花莲的故事','The Hualien Story')}
+            </div>
+            <h1 className="font-serif-display text-5xl md:text-[72px] font-light leading-[1] mb-8">
+              {s('东方孕育的','The green guardian')}<br/>
+              <em className="text-[#D4DBC8]">{s('绿守护。','of the East.')}</em>
+            </h1>
+            <p className="text-[17px] leading-[1.7] text-[#F5F1E8]/80 font-light max-w-lg mb-6">
+              {s('循古法，养生活。立川渔场以花莲寿丰乡得天独厚的天然环境，结合现代生物科技，孕育出世界唯一的黄金蚬。','Following time-honoured methods, cultivating a life of wellness. Lichuan Aquafarm combines Hualien\'s extraordinary natural environment with modern biotechnology to produce the world\'s only Golden Clam.')}
+            </p>
+            <div className="border border-[#F5F1E8]/20 px-5 py-3 smallcaps text-[10px] text-[#D4DBC8] inline-block">
+              {s('世界唯一黄金蚬精锭生产原厂','World\'s only Golden Clam tablet producer')}
+            </div>
+          </div>
+          <div className="md:col-span-6">
+            <div className="relative aspect-[4/5] overflow-hidden bg-[#2A3520]">
+              <img src="lichuan-farm.jpg"
+                alt={s('台湾花莲立川渔场鸟瞰实景','Lichuan Aquafarm aerial view, Hualien Taiwan')}
+                className="absolute inset-0 w-full h-full object-cover"
+                style={{objectPosition:'center 40%'}}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#1F2519]/60 to-transparent"/>
+              <div className="absolute top-6 left-6 smallcaps text-[10px] text-[#F5F1E8] bg-[#1F2519]/50 px-3 py-1.5">
+                {s('本公司实景图','Actual farm photograph')}
+              </div>
+              <div className="absolute bottom-6 right-6 text-right text-[#F5F1E8]">
+                <div className="font-serif-display italic text-sm opacity-70">{s('立川集团','Lichuan Group')}</div>
+                <div className="font-serif-display text-2xl">SINCE 1963</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Section 01 — 得天独厚的孕育宝地 */}
+      <section className="py-20 md:py-28 px-6 md:px-12 bg-[#F5F1E8]">
+        <div className="max-w-[1400px] mx-auto grid md:grid-cols-12 gap-10 md:gap-16 items-center">
+          <div className="md:col-span-5">
+            <div className="aspect-[4/5] relative overflow-hidden bg-[#2A3520]">
+              <img src="lichuan-map.jpg"
+                alt={s('台湾花莲寿丰乡立川渔场地图','Taiwan map showing Lichuan Aquafarm')}
+                className="absolute inset-0 w-full h-full object-contain"
+              />
+            </div>
+          </div>
+          <div className="md:col-span-6 md:col-start-7">
+            <div className="smallcaps text-[11px] text-[#6A8056] mb-4 flex items-center gap-3">
+              <span className="w-8 h-px bg-[#6A8056]"/>01 — {s('得天独厚的孕育宝地','A Blessed Land')}
+            </div>
+            <h2 className="font-serif-display text-5xl md:text-6xl font-light leading-[1.05] mb-8">
+              {s('天赐之地，','Where nature')}<br/><em className="text-[#6A8056]">{s('孕育传奇。','crafts legend.')}</em>
+            </h2>
+            <div className="space-y-4 text-[16px] leading-[1.8] text-[#1F2519]/70 font-light mb-10">
+              <p>{s('花莲寿丰乡藉著东部的地理优势，水源特别优异，环境也没有一般的工业污染。','Hualien\'s Shoufeng Township benefits from exceptional eastern geography — superior water sources, entirely free from industrial pollution.')}</p>
+              <p>{s('立川渔场位于花莲县寿丰乡的天然涌泉区，其黄金蚬的养殖以活水作为培育用水。相较于传统的净化养殖池池水，以活水养殖出来的黄金蚬不仅鲜美无土味，在品质上也更加安全、可靠。','Lichuan Aquafarm sits within a natural spring zone, using living water — 活水 — rather than conventional purified pond water. The result: clams that are clean, fresh, free from earthiness, and held to the highest standard of safety.')}</p>
+              <p>{s('唯有如此得天独厚的自然环境，才能孕育出闻名全国的黄金蚬。','Only an environment this naturally privileged could give birth to a clam celebrated across Taiwan and beyond.')}</p>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {[
+                {n:'1963', l:s('立川集团成立','Lichuan Founded')},
+                {n:'1989', l:s('黄金蚬正式命名','Golden Clam Named')},
+                {n:'600+', l:s('甲地养殖面积','Hectares Farmed')},
+                {n:'100%', l:s('花莲寿丰乡源产','Sourced from Shoufeng')},
+              ].map((st,i)=>(
+                <div key={i} className="border border-[#1F2519]/15 p-4 text-center">
+                  <div className="font-serif-display text-3xl text-[#1F2519] leading-none mb-1">{st.n}</div>
+                  <div className="smallcaps text-[9px] text-[#1F2519]/50">{st.l}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Section 02 — 独一无二的天然地势 */}
+      <section className="py-20 md:py-28 px-6 md:px-12 bg-[#1F2519] text-[#F5F1E8]">
+        <div className="max-w-[1400px] mx-auto">
+          <div className="grid md:grid-cols-12 gap-10 mb-16">
+            <div className="md:col-span-5">
+              <div className="smallcaps text-[11px] text-[#D4DBC8] mb-4 flex items-center gap-3">
+                <span className="w-8 h-px bg-[#D4DBC8]"/>02 — {s('独一无二的天然地势','Unique Natural Terrain')}
+              </div>
+              <h2 className="font-serif-display text-5xl md:text-6xl font-light leading-[1.05]">
+                {s('每日循环，','An eternal cycle,')}<br/><em className="text-[#D4DBC8]">{s('亿万年不变。','unchanged for aeons.')}</em>
+              </h2>
+            </div>
+            <div className="md:col-span-6 md:col-start-7 self-end space-y-4 text-[16px] leading-[1.8] text-[#F5F1E8]/80 font-light">
+              <p>{s('位于花东纵谷的寿丰乡，是花东净土的清泉之乡，拥有海岸山脉（350公尺）与中央山脉（3,952公尺）两大著名山脉环抱。','Shoufeng Township sits in the East Rift Valley — embraced by the Coastal Range (350m) to the east and the Central Range (3,952m) to the west.')}</p>
+              <p>{s('海岸山脉邻近的太平洋受热而上升的水蒸气，经吹拂西飘，再陆续受阻凝聚于高耸的中央山脉山麓，随即雨落汇聚成河，或东流入海，或沉伏地下成泉。','Pacific vapour rises and drifts westward, condensing against the towering Central Range. Rain falls, gathering into rivers — or disappears underground as springs.')}</p>
+              <p>{s('中央山脉盛产各类矿石，具有过滤的效果，泉水洁净无污染，满溢而出，再继续其亿万年来不变的东流路程。','The Central Range is rich in minerals, providing natural filtration. Spring water emerges clean and uncontaminated — flowing eastward in a cycle unchanged for millions of years.')}</p>
+            </div>
+          </div>
+          {/* Rain cycle visual */}
+          <div className="border border-[#F5F1E8]/15 p-8 md:p-12">
+            <div className="smallcaps text-[11px] text-[#D4DBC8] mb-8 text-center tracking-[0.2em]">
+              {s('每日形成源源不绝的地形雨循环','Daily inexhaustible orographic rain cycle')}
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+              {[
+                {icon:'~', label:s('太平洋','Pacific Ocean'), desc:s('海水蒸发','Sea evaporation')},
+                {icon:'^', label:s('中央山脉 3,952m','Central Range 3,952m'), desc:s('云层凝聚落雨','Cloud condensation & rain')},
+                {icon:'*', label:s('活水涌泉','Living Springs'), desc:s('矿石过滤，洁净涌出','Mineral-filtered spring water')},
+                {icon:'o', label:s('花东纵谷','East Rift Valley'), desc:s('立川渔场所在地','Lichuan Aquafarm')},
+              ].map((step,i)=>(
+                <div key={i}>
+                  <div className="font-serif-display text-3xl text-[#6A8056] mb-3 w-12 h-12 rounded-full border border-[#6A8056]/40 flex items-center justify-center mx-auto">
+                    {i===0?'W':i===1?'M':i===2?'S':'V'}
+                  </div>
+                  <div className="font-serif-display text-sm text-[#D4DBC8] mb-1">{step.label}</div>
+                  <div className="smallcaps text-[9px] text-[#F5F1E8]/55">{step.desc}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Section 03 — 孕育黄金蚬关键秘密 */}
+      <section className="py-20 md:py-28 px-6 md:px-12 bg-[#F5F1E8]">
+        <div className="max-w-[1400px] mx-auto">
+          <div className="grid md:grid-cols-12 gap-10 mb-16">
+            <div className="md:col-span-5">
+              <div className="smallcaps text-[11px] text-[#6A8056] mb-4 flex items-center gap-3">
+                <span className="w-8 h-px bg-[#6A8056]"/>03 — {s('孕育黄金蚬关键秘密','The Key Secret')}
+              </div>
+              <h2 className="font-serif-display text-5xl md:text-6xl font-light leading-[1.05]">
+                {s('科技与自然，','Where biotechnology')}<br/><em className="text-[#6A8056]">{s('共生共荣。','meets nature.')}</em>
+              </h2>
+            </div>
+            <div className="md:col-span-6 md:col-start-7 self-end space-y-4 text-[16px] leading-[1.8] text-[#1F2519]/70 font-light">
+              <p>{s('以藻类纯化培养技术为研发重点，透过有效控制蚬池藻相，可提升黄金蚬之生产品质；同时配合育肥技术，使黄金蚬的生长不受季节、气温等自然因素影响，并提升其肥满度。','The core R&D focus is algae purification cultivation technology. By precisely controlling the algae ecosystem within the clam ponds, production quality is elevated. Combined with fertilisation techniques, Golden Clam growth is protected from seasonal and temperature fluctuations.')}</p>
+              <p>{s('此养殖核心技术已获TGAP优良养殖场认证及F.C.C养殖品质认证，确保每一颗黄金蚬都在最优质的环境下成长。','This core technology holds TGAP Excellent Farm Certification and F.C.C Farming Quality Certification — ensuring every Golden Clam reaches the highest possible standard.')}</p>
+            </div>
+          </div>
+          {/* 4-step cycle */}
+          <div className="smallcaps text-[11px] text-[#6A8056] mb-6 text-center tracking-[0.2em]">
+            {s('养殖核心技术 · TGAP优良养殖场认证','Core cultivation technology · TGAP certified excellent farm')}
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {cycleSteps.map((step,i)=>(
+              <div key={i} className="bg-[#1F2519] text-[#F5F1E8] p-6 md:p-8 text-center">
+                <div className="font-serif-display text-5xl md:text-6xl text-[#D4DBC8] mb-3">
+                  {lang==='zh'?step.zh:step.en}
+                </div>
+                <div className="smallcaps text-[9px] text-[#D4DBC8]/60 mb-3">0{i+1}</div>
+                <p className="text-[12px] leading-[1.6] text-[#F5F1E8]/70 font-light">{step.desc}</p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-6 text-center">
+            <div className="inline-flex items-center gap-4 border border-[#6A8056]/40 px-6 py-3 smallcaps text-[10px] text-[#6A8056]">
+              <span>TGAP {s('优良养殖场认证','Excellent Farm Certification')}</span>
+              <span className="text-[#1F2519]/30">·</span>
+              <span>F.C.C {s('养殖品质认证','Farming Quality Certification')}</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Section 04 — Awards (Page 2) */}
+      <section className="py-20 md:py-28 px-6 md:px-12 bg-[#1F2519] text-[#F5F1E8]">
+        <div className="max-w-[1400px] mx-auto">
+          <div className="text-center mb-16">
+            <div className="smallcaps text-[11px] text-[#D4DBC8] mb-6">
+              {s('一个世界第一的荣耀，诞生在花莲立川','A world-first honour — born at Lichuan, Hualien')}
+            </div>
+            <h2 className="font-serif-display text-5xl md:text-6xl font-light leading-[1.05]">
+              {s('五大政府机构，','Five government bodies.')}<br/>
+              <em className="text-[#D4DBC8]">{s('二十年不间断。','Twenty years uninterrupted.')}</em>
+            </h2>
+            <p className="mt-6 max-w-xl mx-auto text-[16px] leading-relaxed text-[#F5F1E8]/70 font-light">
+              {s('五大政府单位和学术界，连续20多年未曾间断地投入研究黄金蚬对人类健康的贡献。','5 government bodies and academic institutions have spent 20+ years in uninterrupted research into Golden Clam\'s contribution to human health.')}
+            </p>
+          </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-12">
+            {awards.map((a,i)=>(
+              <div key={i} className="border border-[#F5F1E8]/15 p-6 flex items-start gap-4 hover:border-[#D4DBC8]/40 transition-colors">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#D4DBC8" strokeWidth="1.5" strokeLinecap="round" className="shrink-0 mt-1"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
+                <div>
+                  <div className="font-serif-display text-xl mb-1">{a.title}</div>
+                  <div className="smallcaps text-[10px] text-[#F5F1E8]/50">{a.sub}</div>
+                </div>
+              </div>
+            ))}
+            <div className="border border-[#6A8056]/40 bg-[#6A8056]/10 p-6 flex items-start gap-4">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#D4DBC8" strokeWidth="1.5" strokeLinecap="round" className="shrink-0 mt-1"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+              <div>
+                <div className="font-serif-display text-xl mb-1">{s('国家健康食品认证 A00207','Health Food Cert. A00207')}</div>
+                <div className="smallcaps text-[10px] text-[#D4DBC8]/80">{s('台湾卫福部 · 护肝功效正式认证','Taiwan Ministry of Health & Welfare · Liver protection certified')}</div>
+              </div>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 border-t border-[#F5F1E8]/15 pt-12">
+            {[
+              {n:'5', l:s('大政府机构背书','Government Bodies')},
+              {n:'20+', l:s('年持续研究','Years of Research')},
+              {n:'A00207', l:s('国家健康食品认证','Health Food Cert')},
+              {n:'1/1', l:s('世界唯一渔场','Farm Worldwide')},
+            ].map((st,i)=>(
+              <div key={i} className="text-center border border-[#F5F1E8]/10 py-8">
+                <div className="font-serif-display text-4xl md:text-5xl text-[#D4DBC8] mb-2">{st.n}</div>
+                <div className="smallcaps text-[9px] text-[#F5F1E8]/50">{st.l}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Closing farm photo */}
+      <section className="px-6 md:px-12 py-10">
+        <div className="max-w-[1400px] mx-auto">
+          <div className="relative aspect-[16/6] overflow-hidden">
+            <img src="lichuan-farm.jpg"
+              alt={s('立川渔场全景','Lichuan Aquafarm panorama')}
+              className="absolute inset-0 w-full h-full object-cover"
+              style={{objectPosition:'center 45%'}}
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#1F2519]/75 via-transparent to-transparent"/>
+            <div className="absolute inset-0 flex items-center">
+              <div className="px-10 md:px-16 max-w-lg text-[#F5F1E8]">
+                <div className="font-serif-display text-3xl md:text-4xl font-light leading-[1.2] mb-4">
+                  {s('"离开了花莲寿丰乡，就没有效性的黄金蚬。"','"Outside Hualien\'s Shoufeng Township, the Golden Clam loses its potency."')}
+                </div>
+                <div className="smallcaps text-[10px] text-[#F5F1E8]/60">
+                  {s('立川百科 · 立川集团','Lichuan Encyclopedia · Lichuan Group')}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────
+// APP ROOT
+// ─────────────────────────────────────────────
+function App() {
+  const [page, setPage] = useState('home');
+  const [scrolled, setScrolled] = useState(false);
+  const [lang, setLang] = useState(() => {
+    try { const s = localStorage.getItem('biogreeno_lang_v2'); if (s==='en'||s==='zh') return s; } catch(e) {}
+    return 'zh';
+  });
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 30);
+    window.addEventListener('scroll', onScroll);
+    document.body.classList.toggle('lang-zh', lang==='zh');
+    document.documentElement.lang = lang==='zh' ? 'zh-CN' : 'en';
+    try { localStorage.setItem('biogreeno_lang_v2', lang); } catch(e) {}
+    const loader = document.getElementById('loading');
+    if (loader) loader.style.display = 'none';
+    return () => window.removeEventListener('scroll', onScroll);
+  }, [lang]);
+
+  // Update page title based on current page
+  useEffect(() => {
+    const titles = {
+      home: lang==='zh' ? 'BioGreeno — 黄金蚬® 马来西亚授权代理' : 'BioGreeno — Premium Golden Clam® Malaysia',
+      'golden-clam': lang==='zh' ? '黄金蚬® — BioGreeno' : 'Golden Clam® — BioGreeno',
+      springlife: 'SpringLife® — BioGreeno',
+      hualien: lang==='zh' ? '花莲的故事 — BioGreeno' : 'Hualien Story — BioGreeno',
+      certifications: lang==='zh' ? '认证与佐证 — BioGreeno' : 'Certifications — BioGreeno',
+      testimonials: lang==='zh' ? '见证 — BioGreeno' : 'Testimonials — BioGreeno',
+    };
+    document.title = titles[page] || 'BioGreeno';
+  }, [page, lang]);
+
+  const toggleLang = () => setLang(prev => prev==='en'?'zh':'en');
+
+  const renderPage = () => {
+    switch(page) {
+      case 'golden-clam':    return <GoldenClamPage lang={lang} setPage={setPage}/>;
+      case 'springlife':     return <SpringLifePage lang={lang}/>;
+      case 'hualien':        return <HualienPage lang={lang}/>;
+      case 'certifications': return <CertificationsPage lang={lang}/>;
+      case 'testimonials':   return <TestimonialsPage lang={lang}/>;
+      default:               return <HomePage lang={lang} setPage={setPage}/>;
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-[#F5F1E8] text-[#1F2519]">
+      {/* Announcement bar */}
+      <div className="bg-[#1F2519] text-[#F5F1E8] text-xs smallcaps py-2.5 text-center px-4">
+        {t('announcement', lang)}
+      </div>
+
+      <Nav page={page} setPage={setPage} lang={lang} toggleLang={toggleLang} scrolled={scrolled}/>
+
+      <main>{renderPage()}</main>
+
+      <Footer lang={lang} setPage={setPage}/>
+      <WAButton/>
+    </div>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App/>);
+</script>
+</body>
+</html>
